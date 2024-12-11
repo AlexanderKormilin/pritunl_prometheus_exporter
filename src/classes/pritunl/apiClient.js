@@ -69,7 +69,11 @@ class Pritunl extends PritunlApiAuthentication {
                 method: "GET",
                 path: "/host/" + hostId + "/usage/1m"
             });
-            return res.data;
+
+            return {
+                cpu: res.data.cpu[res.data.cpu.length - 1][1],
+                mem: res.data.mem[res.data.mem.length - 1][1]
+            };
         } catch(err){
             console.log(err);
         }
