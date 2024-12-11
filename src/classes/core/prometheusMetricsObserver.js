@@ -160,7 +160,7 @@ class PrometheusMetricsObserver {
             for (const server of serverMetrics) {
                 serverStatus.set({
                     serverName: server.name
-                }, 0);
+                }, server.status === 'online' ? 0 : 1);
                 usersConnected.set({
                     serverName: server.name
                 }, server.usersConnected ? server.usersConnected : 0);
