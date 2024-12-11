@@ -113,7 +113,7 @@ class PrometheusMetricsObserver {
                     linkLocationsConnectionStatus.set({
                         srcLinkName: interconnection.sourceLocationName,
                         dstLinkName: interconnection.destinationLocationName
-                    }, 0);
+                    }, interconnection.connectionStatus === 'connected' ? 0 : 1);
 
                     let minLatency = 999999;
                     let maxLatency = 0;
