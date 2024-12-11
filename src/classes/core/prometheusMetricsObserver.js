@@ -3,64 +3,64 @@ const client = require('prom-client');
 // Servers metrics section
 const serverStatus = new client.Gauge({
     name: 'server_status',
-    help: 'metric_help',
+    help: 'The current status of the server. May be either 0 (online) or 1 (offline)',
     labelNames: ['serverName']
 });
 const usersConnected = new client.Gauge({
     name: 'server_users_connected',
-    help: 'metric_help',
+    help: 'The total number of a users currently connected to the server',
     labelNames: ['serverName']
 });
 const serverEgressThroughputBytes = new client.Gauge({
     name: 'server_egress_throughput_bytes',
-    help: 'metric_help',
+    help: 'Out-coming server traffic, in bytes',
     labelNames: ['serverName']
 });
 const serverIngressThroughputBytes = new client.Gauge({
     name: 'server_ingress_throughput_bytes',
-    help: 'metric_help',
+    help: 'In-coming server traffic, in bytes',
     labelNames: ['serverName']
 });
 // links metrics section
 const linkStatus = new client.Gauge({
     name: 'link_status',
-    help: 'metric_help',
+    help: 'The current status of the link. May be either 0 (online) or 1 (offline)',
     labelNames: ['linkName']
 });
 const linkLocationsConnectionStatus = new client.Gauge({
     name: 'link_locations_connection_status',
-    help: 'metric_help',
+    help: 'The current status of each location interconnection status. May be either 0 (connected) or 1 (disconnected)',
     labelNames: ['srcLinkName', 'dstLinkName']
 });
 const linkInterconnectionLatency = new client.Gauge({
     name: 'link_locations_connection_latency',
-    help: 'metric_help',
+    help: 'The last latency value measured during the link client healthcheck. Milliseconds',
     labelNames: ['srcLinkName', 'srcHostName', 'dstLinkName', 'dstHostName']
 });
 const linkInterconnectionLatencyMin = new client.Gauge({
     name: 'link_locations_connection_latency_min_across_hosts',
-    help: 'metric_help',
+    help: 'The minimal last latency value measured during the link client healthcheck. Milliseconds, useful if there is more than one link client per location',
     labelNames: ['srcLinkName', 'dstLinkName']
 });
 const linkInterconnectionLatencyMax = new client.Gauge({
     name: 'link_locations_connection_latency_max_across_hosts',
-    help: 'metric_help',
+    help: 'The maximal last latency value measured during the link client healthcheck. Milliseconds, useful if there is more than one link client per location',
     labelNames: ['srcLinkName', 'dstLinkName']
 });
 const linkInterconnectionLatencyMonitoringStatus = new client.Gauge({
     name: 'link_locations_connection_latency_monitoring_status',
-    help: 'metric_help',
+    help: 'The actual status of each interconnection healthcheck. May be either 0 (ok) or 1 (failed)',
     labelNames: ['srcLinkName', 'srcHostName', 'dstLinkName', 'dstHostName']
 });
 // Hosts metrics section
 const hostStatus = new client.Gauge({
     name: 'host_status',
-    help: 'metric_help',
+    help: 'The current status of the host. May be either 0 (online) or 1 (offline)',
     labelNames: ['hostName']
 });
 const hostUsersConnected = new client.Gauge({
     name: 'host_users_connected',
-    help: 'metric_help',
+    help: 'The total number of a users currently connected to the host',
     labelNames: ['hostName']
 });
 const hostCpuUtilization = new client.Gauge({
@@ -96,24 +96,12 @@ class PrometheusMetricsObserver {
                     hostName: host.name
                 }, host.usersConnected ? host.usersConnected : 0);
 
-                let totalCpuLoadPercentage = 0;
-                for (const piece of host.cpuUtilization) {
-                    totalCpuLoadPercentage = totalCpuLoadPercentage + piece[1];
-                }
-                const averageLastMinuteCpuLoad = (totalCpuLoadPercentage / host.cpuUtilization.length) * 100;
-
-                let totalMemoryLoadPercentage = 0;
-                for (const piece of host.ramUtilization) {
-                    totalMemoryLoadPercentage = totalMemoryLoadPercentage + piece[1];
-                }
-                const averageLastMinuteRamLoad = (totalMemoryLoadPercentage / host.ramUtilization.length) * 100;
-
                 hostCpuUtilization.set({
                     hostName: host.name
-                }, averageLastMinuteCpuLoad);
+                }, host.cpuUtilization * 100);
                 hostRamUtilization.set({
                     hostName: host.name
-                }, averageLastMinuteRamLoad);
+                }, host.ramUtilization * 100);
             }
 
             // Link metrics

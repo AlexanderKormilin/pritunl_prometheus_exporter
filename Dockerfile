@@ -4,7 +4,7 @@ WORKDIR /home/node/app
 COPY package*.json ./
 RUN npm install
 COPY --chown=node:node src .
-EXPOSE 9132
+EXPOSE 9130
 WORKDIR /home/node/app/src
 
 CMD [ "node", "app.js" ]
