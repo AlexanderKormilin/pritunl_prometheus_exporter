@@ -1,11 +1,25 @@
-FROM node:22
-RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
+FROM node:22-alpine3.21
+
+ENV USER=application
+ENV GROUPNAME=$USER
+ENV UID=10001
+ENV GID=10001
+
+RUN addgroup \
+    --gid "$GID" \
+    "$GROUPNAME" && \
+    adduser \
+    --disabled-password \
+    --ingroup "$GROUPNAME" \
+    --no-create-home \
+    --uid "$UID" \
+    $USER
+
 WORKDIR /home/node/app
-COPY package*.json ./
-RUN npm ci
-COPY --chown=node:node src .
+COPY --chown=$UID:$GID . .
+RUN npm ci && \
+    chown -R $UID:$GID node_modules 
 EXPOSE 9130
-WORKDIR /home/node/app/src
+USER $UID
 
 CMD [ "node", "app.js" ]
-USER node
