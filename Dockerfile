@@ -15,7 +15,7 @@ RUN addgroup \
     --uid "$UID" \
     $USER
 
-WORKDIR /home/node/app/src/app.js
+WORKDIR /home/node/app/src/
 COPY --chown=$UID:$GID . .
 RUN npm ci && \
     chown -R $UID:$GID node_modules 
