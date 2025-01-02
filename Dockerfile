@@ -18,7 +18,7 @@ RUN addgroup \
 WORKDIR /home/node/app/
 COPY --chown=$UID:$GID . .
 RUN npm ci && \
-    chown -R $UID:$GID node_modules 
+    chown -R $UID:$GID node_modules
 EXPOSE 9130
 USER $UID
 

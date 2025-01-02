@@ -76,8 +76,10 @@ const hostRamUtilization = new client.Gauge({
 
 class PrometheusMetricsObserver {
     constructor({
-        rawDataCollectorInstance
+        rawDataCollectorInstance,
+        loggerInstance
      } = {}) {
+        this.loggerInstance = loggerInstance;
         this.rawDataCollectorInstance = rawDataCollectorInstance;
     }
 
@@ -152,7 +154,6 @@ class PrometheusMetricsObserver {
                             srcHostName: hostPair.srcHostName
                         }, hostPair.ok === true ? 0 : 1);
                     }
-
                 }
             }
 
@@ -173,7 +174,7 @@ class PrometheusMetricsObserver {
             }
 
         } catch (err) {
-            console.error('Failed to update metrics');
+            await this.loggerInstance.error('Failed to fetch Prometheus metrics data', err);
             throw err;
         }
     }
