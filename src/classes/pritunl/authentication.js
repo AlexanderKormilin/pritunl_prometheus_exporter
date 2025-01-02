@@ -3,7 +3,6 @@ const fs = require('fs');
 const crypto = require('crypto');
 const axios = require('axios');
 const AxiosHeaders = require('axios').AxiosHeaders;
-const createRandomString = require('crypto-random-string');
 
 class PritunlApiAuthentication {
     constructor (props) {
@@ -37,6 +36,8 @@ class PritunlApiAuthentication {
         if (this.props.baseUrl[this.props.baseUrl.length - 1] === "/") {
             this.props.baseUrl = this.props.baseUrl.slice(0, this.props.baseUrl.length - 1);
         }
+
+        this.loggerInstance = this.props.loggerInstance;
     }
 
     async makeAuthorizedRequest(options = {}){
@@ -50,7 +51,7 @@ class PritunlApiAuthentication {
         };
         options = Object.assign({}, defaultOptions, options);
 
-        const authNonce = createRandomString.default({length: 32});
+        const authNonce = crypto.randomBytes(16).toString('hex');
         const authTimeStamp = Math.floor(Date.now() / 1000);
         const authString = [options.apiToken, authTimeStamp, authNonce, options.method.toUpperCase(), options.path].join("&");
         const authHeadersObj = {
@@ -63,12 +64,22 @@ class PritunlApiAuthentication {
         const headers = new AxiosHeaders(authHeadersObj);
 
         const url = `${baseUrl}${options.path}`;
-        return axios({
-            method: options.method,
-            url,
-            headers: headers,
-            data: options.data ? options.data : null,
-        });
+
+        let result;
+
+        try {
+            result = await axios({
+                method: options.method,
+                url,
+                headers: headers,
+                data: options.data ? options.data : null,
+            });
+            await this.loggerInstance.debug('Pritunl API query OK');
+            return result;
+        } catch (err) {
+            await this.loggerInstance.error('Pritunl API query failure', err);
+            throw err;
+        }
     }
 }
 

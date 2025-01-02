@@ -2,16 +2,18 @@ const PritunlApiAuthentication = require('./authentication');
 
 class Pritunl extends PritunlApiAuthentication {
     constructor({
-       baseUrl,
-       apiToken,
-       apiSecret,
-       selfSignedCaPath
+        baseUrl,
+        apiToken,
+        apiSecret,
+        selfSignedCaPath,
+        loggerInstance
     }){
         super({
             baseUrl: baseUrl,
             apiToken: apiToken,
             apiSecret: apiSecret,
-            selfSignedCaPath: selfSignedCaPath
+            selfSignedCaPath: selfSignedCaPath,
+            loggerInstance: loggerInstance
         });
     }
 
@@ -22,8 +24,9 @@ class Pritunl extends PritunlApiAuthentication {
                 path: "/link"
             });
             return res.data;
-        } catch(err){
-            console.log(err);
+        } catch (err) {
+            await this.loggerInstance.error('Failed to fetch links list from Pritunl API', err);
+            throw err;
         }
     }
 
@@ -34,8 +37,9 @@ class Pritunl extends PritunlApiAuthentication {
                 path: "/link/" + linkId + "/location"
             });
             return res.data;
-        } catch(err){
-            console.log(err);
+        } catch (err) {
+            await this.loggerInstance.error('Failed to fetch links locations list from Pritunl API', err);
+            throw err;
         }
     }
 
@@ -46,8 +50,9 @@ class Pritunl extends PritunlApiAuthentication {
                 path: "/server"
             });
             return res.data;
-        } catch(err){
-            console.log(err);
+        } catch (err) {
+            await this.loggerInstance.error('Failed to fetch servers list from Pritunl API', err);
+            throw err;
         }
     }
 
@@ -58,8 +63,9 @@ class Pritunl extends PritunlApiAuthentication {
                 path: "/host"
             });
             return res.data;
-        } catch(err){
-            console.log(err);
+        } catch (err) {
+            await this.loggerInstance.error('Failed to fetch hosts list from Pritunl API', err);
+            throw err;
         }
     }
 
@@ -74,8 +80,9 @@ class Pritunl extends PritunlApiAuthentication {
                 cpu: res.data.cpu[res.data.cpu.length - 1][1],
                 mem: res.data.mem[res.data.mem.length - 1][1]
             };
-        } catch(err){
-            console.log(err);
+        } catch (err) {
+            await this.loggerInstance.error('Failed to fetch hosts usage data from Pritunl API', err);
+            throw err;
         }
     }
 
@@ -90,8 +97,9 @@ class Pritunl extends PritunlApiAuthentication {
                 sent: res.data.sent[res.data.sent.length - 1][1],
                 received: res.data.received[res.data.received.length - 1][1]
             };
-        } catch(err){
-            console.log(err);
+        } catch (err) {
+            await this.loggerInstance.error('Failed to fetch hosts bandwidth data from Pritunl API', err);
+            throw err;
         }
     }
 }

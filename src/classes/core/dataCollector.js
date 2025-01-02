@@ -1,4 +1,4 @@
-const rawDataStorage = require('../../datastores/metrics/client');
+const metricsDataStorage = require('../../datastores/metrics/client');
 const PritunlApiClient = require('../pritunl/apiClient');
 
 class DataCollector {
@@ -6,7 +6,8 @@ class DataCollector {
         pritunlServerFQDN,
         pritunlServerApiToken,
         pritunlServerApiSecret,
-        metricsUpdateIntervalSeconds
+        metricsUpdateIntervalSeconds,
+        loggerInstance
     }) {
         this.started = false;
         this.updateTimer = null;
@@ -14,41 +15,40 @@ class DataCollector {
         this.apiClient = new PritunlApiClient({
             apiToken: pritunlServerApiToken,
             apiSecret: pritunlServerApiSecret,
-            baseUrl: pritunlServerFQDN
+            baseUrl: pritunlServerFQDN,
+            loggerInstance: loggerInstance
         });
+        this.loggerInstance = loggerInstance;
     }
 
     async start() {
         try {
-            console.log('Starting raw data collector...');
+            await this.loggerInstance.debug('Starting raw data collector...');
+            await metricsDataStorage.ensureStructure();
             await this.updateRawMetrics();
             this.updateTimer = setInterval(async () => {
-                try {
-                    await this.updateRawMetrics();
-                } catch (err) {
-                    console.error('Failed to update raw metrics data: ' + err.message);
-                }
+                await this.updateRawMetrics();
             }, (Number.parseInt(this.metricsUpdateIntervalSeconds) * 1000));
-            console.log('Background update timer set and enabled, timeout is: ' + this.metricsUpdateIntervalSeconds + ' seconds...');
+            await this.loggerInstance.debug('Background update timer set and enabled, timeout is: ' + this.metricsUpdateIntervalSeconds + ' seconds...');
             this.started = true;
-            console.log('Raw data collector started');
+            await this.loggerInstance.debug('Raw data collector started');
         } catch (err) {
             throw new Error('Failed to start raw data collector: ' + err.message);
         }
     };
 
     async stop() {
-        console.log('Stopping raw data collector...');
+        await this.loggerInstance.debug('Stopping raw data collector...');
         if (this.started === true) {
-            console.log('Clearing data update interval...');
+            await this.loggerInstance.debug('Clearing data update interval...');
             clearInterval(this.updateTimer);
-            console.log('Data update interval cleared');
+            await this.loggerInstance.debug('Data update interval cleared');
         }
-        console.log('Raw data collector stopped');
+        await this.loggerInstance.debug('Raw data collector stopped');
     };
 
     async updateRawMetrics() {
-        console.log('Updating raw metrics data...');
+        await this.loggerInstance.info('Attempting to update raw metrics data...');
         try {
             // the metrics itself
             // 1. Server status (can be 0 - online and 1 - offline) One metric per each server, type is gauge
@@ -59,7 +59,7 @@ class DataCollector {
             // 6. Host CPU utilization, momentary, percents. One metric per host, type is gauge
             // 7. Host RAM utilization, momentary, percents. One metric per hots, type is gauge
             // 8. Link status (can be 0 - online and 1 - offline). One metric per each link, type is gauge
-            // 9. Links location to location delay, momentary, ms. One metric per each possible combination of both source link and destination link
+            // 9. Links location to location delay, momentary, ms. One metric per each possible combination of both source link, destination link, source host and destination host
             // 10. Link location to location connection status (can be 0 - up or 1 - down). One metric per each possible combination of both source link and destination link
 
             const linksPrettyData = [];
@@ -109,44 +109,41 @@ class DataCollector {
             const serverBandwidthRawData = {};
             const linkHostsRawData = [];
 
+            await this.loggerInstance.debug('Fetching the hosts list...');
             const hosts = await this.apiClient.listHosts();
-            console.log('Successfully fetched the hosts list...');
+            await this.loggerInstance.debug('Successfully fetched the hosts list');
 
+            await this.loggerInstance.debug('Fetching the hosts load stats...');
             for (const host of hosts) {
-                try {
-                    hostsLoadRawData[host.id] = await this.apiClient.getHostUsageData(host.id);
-                } catch (err) {
-                    console.error('Failed to fetch host load data! Host data is: ' + host.toString());
-                }
+                hostsLoadRawData[host.id] = await this.apiClient.getHostUsageData(host.id);
             }
-            console.log('Successfully fetched the hosts load stats...');
+            await this.loggerInstance.debug('Successfully fetched the hosts load stats');
 
+            await this.loggerInstance.debug('Fetching the links list...');
             const links = await this.apiClient.listLinks();
-            console.log('Successfully fetched the links list...');
+            await this.loggerInstance.debug('Successfully fetched the links list');
 
+            await this.loggerInstance.debug('Fetching the link locations list...');
             for (const link of links.links) {
-                try {
-                    const linkLocation = await this.apiClient.listLinkLocations(link.id);
+                const linkLocation = await this.apiClient.listLinkLocations(link.id);
 
-                    for (const linkLocationLoop of linkLocation) {
-                        linkLocationsRawData[linkLocationLoop.id] = linkLocationLoop;
-                        linkHostsRawData.push(...linkLocationLoop['hosts']);
-                    }
-                } catch (err) {
-                    console.error('Failed to fetch link location! Link data is: ' + link.toString());
+                for (const linkLocationLoop of linkLocation) {
+                    linkLocationsRawData[linkLocationLoop.id] = linkLocationLoop;
+                    linkHostsRawData.push(...linkLocationLoop['hosts']);
                 }
             }
-            console.log('Successfully fetched the link locations list...');
+            await this.loggerInstance.debug('Successfully fetched the link locations list');
 
-
+            await this.loggerInstance.debug('Fetching the servers list...');
             const servers = await this.apiClient.listServers();
-            console.log('Successfully fetched the servers list...');
+            await this.loggerInstance.debug('Successfully fetched the servers list');
 
+            await this.loggerInstance.debug('Fetching the servers bandwidth stats...');
             for (const server of servers) {
                 serverBandwidthRawData[server.id] = await this.apiClient.getServerBandwidthData(server.id);
             }
-            console.log('Successfully fetched the servers bandwidth stats...');
-            console.log('All the raw metrics data fetched, processing...');
+            await this.loggerInstance.debug('Successfully fetched the servers bandwidth stats');
+            await this.loggerInstance.debug('All the raw metrics data fetched, processing...');
 
             // servers block
             for (const server of servers) {
@@ -162,6 +159,8 @@ class DataCollector {
 
                 serverPrettyData.push(prettyData);
             }
+            await this.loggerInstance.debug('Servers data processed...');
+
 
             // hosts block
             for (const host of hosts) {
@@ -175,6 +174,7 @@ class DataCollector {
 
                 hostsPrettyData.push(prettyData);
             }
+            await this.loggerInstance.debug('Hosts data processed...');
 
             // links block
             for (const link of links.links) {
@@ -194,7 +194,7 @@ class DataCollector {
 
                     for (const host of linkLocationsRawData[locationId]['hosts']) {
                         for (const key of Object.getOwnPropertyNames(host['hosts'])) {
-                            // iterating through the locations connected link clients (hosts)
+                            // iterating through the location's link clients (hosts)
 
                             const dstHost = linkHostsRawData.find((element) => {
                                 if (element.id === key) {
@@ -233,17 +233,18 @@ class DataCollector {
 
                         interconnectionStatsArray.push(prettyInterconnectionData);
                     }
-
                 }
                 prettyData.interconnectionStatsArray = interconnectionStatsArray;
                 linksPrettyData.push(prettyData);
             }
+            await this.loggerInstance.debug('Links data processed...');
 
-            await rawDataStorage.storeHostMetricsData({data: hostsPrettyData});
-            await rawDataStorage.storeServerMetricsData({data: serverPrettyData});
-            await rawDataStorage.storeLinkMetricsData({data: linksPrettyData});
+            await metricsDataStorage.storeHostMetricsData({data: hostsPrettyData});
+            await metricsDataStorage.storeServerMetricsData({data: serverPrettyData});
+            await metricsDataStorage.storeLinkMetricsData({data: linksPrettyData});
 
-            console.log('Data ready');
+            await this.loggerInstance.debug('Data stored...');
+            await this.loggerInstance.info('Raw metrics data updated');
 
         } catch (err) {
             throw new Error('Failed to update raw metrics data: ' + err);
@@ -252,7 +253,7 @@ class DataCollector {
 
     async getRawMetrics() {
         try {
-            return rawDataStorage.getMetricsData();
+            return metricsDataStorage.getMetricsData();
         } catch (err) {
             throw new Error('Failed to retrieve raw metrics data: ' + err);
         }
