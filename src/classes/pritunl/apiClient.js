@@ -19,59 +19,55 @@ class Pritunl extends PritunlApiAuthentication {
 
     async listLinks(){
         try{
-            const res = await super.makeAuthorizedRequest({
+            const res = await super.makeRequest({
                 method: "GET",
                 path: "/link"
             });
             return res.data;
         } catch (err) {
-            await this.loggerInstance.error('Failed to fetch links list from Pritunl API', err);
             throw err;
         }
     }
 
     async listLinkLocations(linkId){
         try{
-            const res = await super.makeAuthorizedRequest({
+            const res = await super.makeRequest({
                 method: "GET",
                 path: "/link/" + linkId + "/location"
             });
             return res.data;
         } catch (err) {
-            await this.loggerInstance.error('Failed to fetch links locations list from Pritunl API', err);
             throw err;
         }
     }
 
     async listServers(){
         try{
-            const res = await super.makeAuthorizedRequest({
+            const res = await super.makeRequest({
                 method: "GET",
                 path: "/server"
             });
             return res.data;
         } catch (err) {
-            await this.loggerInstance.error('Failed to fetch servers list from Pritunl API', err);
             throw err;
         }
     }
 
     async listHosts(){
         try{
-            const res = await super.makeAuthorizedRequest({
+            const res = await super.makeRequest({
                 method: "GET",
                 path: "/host"
             });
             return res.data;
         } catch (err) {
-            await this.loggerInstance.error('Failed to fetch hosts list from Pritunl API', err);
             throw err;
         }
     }
 
     async getHostUsageData(hostId){
         try{
-            const res = await super.makeAuthorizedRequest({
+            const res = await super.makeRequest({
                 method: "GET",
                 path: "/host/" + hostId + "/usage/1m"
             });
@@ -81,14 +77,13 @@ class Pritunl extends PritunlApiAuthentication {
                 mem: res.data.mem[res.data.mem.length - 1][1]
             };
         } catch (err) {
-            await this.loggerInstance.error('Failed to fetch hosts usage data from Pritunl API', err);
             throw err;
         }
     }
 
     async getServerBandwidthData(serverId){
         try{
-            const res = await super.makeAuthorizedRequest({
+            const res = await super.makeRequest({
                 method: "GET",
                 path: "/server/" + serverId + "/bandwidth/1m"
             });
@@ -98,7 +93,6 @@ class Pritunl extends PritunlApiAuthentication {
                 received: res.data.received[res.data.received.length - 1][1]
             };
         } catch (err) {
-            await this.loggerInstance.error('Failed to fetch hosts bandwidth data from Pritunl API', err);
             throw err;
         }
     }

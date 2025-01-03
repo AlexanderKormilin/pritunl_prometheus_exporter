@@ -20,6 +20,8 @@ exporter.ensureStructure = async function ensureStructure() {
             data: null
         };
 
+        await metricsDataStore.remove({}, {});
+
         await metricsDataStore.insert(objectToStoreServerMetrics);
         await metricsDataStore.insert(objectToStoreHostMetrics);
         await metricsDataStore.insert(objectToStoreLinkMetrics);

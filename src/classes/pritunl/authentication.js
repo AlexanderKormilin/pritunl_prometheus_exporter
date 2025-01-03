@@ -40,7 +40,7 @@ class PritunlApiAuthentication {
         this.loggerInstance = this.props.loggerInstance;
     }
 
-    async makeAuthorizedRequest(options = {}){
+    async makeRequest(options = {}){
         const {apiToken, apiSecret, baseUrl} = this.props;
         const defaultOptions = {
             apiToken,
@@ -74,10 +74,10 @@ class PritunlApiAuthentication {
                 headers: headers,
                 data: options.data ? options.data : null,
             });
-            await this.loggerInstance.debug('Pritunl API query OK');
+            await this.loggerInstance.debug('Pritunl API query OK (' + options.method + ' ' + url + ')', result);
             return result;
         } catch (err) {
-            await this.loggerInstance.error('Pritunl API query failure', err);
+            await this.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + '). Error: ' + err.message);
             throw err;
         }
     }

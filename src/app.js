@@ -1,4 +1,5 @@
 require('dotenv').config({path: './secrets/.env'});
+
 const express = require('express');
 const expressListenersRegistrar = require('../src/apiListeners/registrar');
 
@@ -7,8 +8,8 @@ const Logger = new logger({
     logLvl: process.env.LOG_LEVEL
 });
 
-const rawDataCollector = require('./classes/core/dataCollector');
-const RawDataCollector = new rawDataCollector({
+const dataCollector = require('./classes/core/dataCollector');
+const DataCollector = new dataCollector({
     pritunlServerFQDN: process.env.PRITUNL_SERVER_FQDN,
     pritunlServerApiToken: process.env.PRITUNL_SERVER_API_TOKEN,
     pritunlServerApiSecret: process.env.PRITUNL_SERVER_API_SECRET,
@@ -20,21 +21,19 @@ const RawDataCollector = new rawDataCollector({
 
 const metricsObserver = require('./classes/core/prometheusMetricsObserver');
 const MetricsObserver = new metricsObserver({
-    rawDataCollectorInstance: RawDataCollector,
+    rawDataCollectorInstance: DataCollector,
     loggerInstance: Logger
 });
 
 (async function start() {
     try {
-        await Logger.info('Starting...');
+        await Logger.info('App starting...');
 
         const app = express();
         await Logger.debug('Created Express server instance...');
 
-        await RawDataCollector.start();
+        await DataCollector.start();
         await Logger.debug('Data collector started...');
-
-        await Logger.debug('Prometheus metrics observer initialized...');
 
         expressListenersRegistrar.registerAllListeners(app, MetricsObserver, Logger);
         await Logger.debug('Metrics endpoint registered...');
@@ -43,8 +42,8 @@ const MetricsObserver = new metricsObserver({
         await Logger.debug('Express server started, listening on port ' + process.env.PORT + '...');
         await Logger.info('Start sequence completed');
     } catch (err) {
-        await Logger.error('Failed to start: ' + err.stack);
-        await RawDataCollector.stop();
+        await Logger.error('The app has failed to start: ' + err.stack);
+        await DataCollector.stop();
         process.exit(1);
     }
 })();

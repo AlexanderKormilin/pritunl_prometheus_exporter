@@ -22,19 +22,29 @@ class DataCollector {
     }
 
     async start() {
+        await this.loggerInstance.debug('Starting raw data collector...');
         try {
-            await this.loggerInstance.debug('Starting raw data collector...');
+            await this.loggerInstance.debug('Ensuring datastore structure...');
             await metricsDataStorage.ensureStructure();
-            await this.updateRawMetrics();
-            this.updateTimer = setInterval(async () => {
-                await this.updateRawMetrics();
-            }, (Number.parseInt(this.metricsUpdateIntervalSeconds) * 1000));
-            await this.loggerInstance.debug('Background update timer set and enabled, timeout is: ' + this.metricsUpdateIntervalSeconds + ' seconds...');
-            this.started = true;
-            await this.loggerInstance.debug('Raw data collector started');
+            await this.loggerInstance.debug('Datastore structure ready');
         } catch (err) {
-            throw new Error('Failed to start raw data collector: ' + err.message);
+            throw new Error('Failed to ensure metrics datastore structure: ' + err.message);
         }
+        try {
+            await this.updateMetrics();
+        } catch (err) {
+            throw new Error('Failed to update metrics: ' + err.message);
+        }
+        this.updateTimer = setInterval(async () => {
+            try {
+                await this.updateMetrics();
+            } catch (err) {
+                await this.loggerInstance.error('Metrics update timer failure', err);
+            }
+        }, (Number.parseInt(this.metricsUpdateIntervalSeconds) * 1000));
+        await this.loggerInstance.debug('Background update timer set and enabled, timeout is: ' + this.metricsUpdateIntervalSeconds + ' seconds...');
+        this.started = true;
+        await this.loggerInstance.debug('Raw data collector started');
     };
 
     async stop() {
@@ -47,137 +57,154 @@ class DataCollector {
         await this.loggerInstance.debug('Raw data collector stopped');
     };
 
-    async updateRawMetrics() {
-        await this.loggerInstance.info('Attempting to update raw metrics data...');
+    async updateMetrics() {
+        await this.loggerInstance.info('Attempting to update metrics data...');
+
+        // the metrics itself
+        // 1. Server status (can be 0 - online and 1 - offline) One metric per each server, type is gauge
+        // 2. Users online, total. One metric per server, type is gauge
+        // 3. Server throughput, egress, bytes per second. One metric per server, type is gauge
+        // 4. Server throughput, ingress, bytes per second. One metric per server, type is gauge
+        // 5. Host status (can be 0 - online and 1 - offline). One metric per each host, type is gauge
+        // 6. Host CPU utilization, momentary, percents. One metric per host, type is gauge
+        // 7. Host RAM utilization, momentary, percents. One metric per hots, type is gauge
+        // 8. Link status (can be 0 - online and 1 - offline). One metric per each link, type is gauge
+        // 9. Links location to location delay, momentary, ms. One metric per each possible combination of both source link, destination link, source host and destination host
+        // 10. Link location to location connection status (can be 0 - up or 1 - down). One metric per each possible combination of both source link and destination link
+        const linksPrettyData = [];
+        const hostsPrettyData = [];
+        const serverPrettyData = [];
+
+        const serverData = {
+            id: '',
+            name: '',
+            status: '',
+            usersConnected: 0,
+            ingressThroughput: 0,
+            ingressTotal: 0,
+            egressThroughput: 0,
+            egressTotal: 0
+        };
+
+        const hostData = {
+            id: '',
+            name: '',
+            status: '',
+            usersConnected: 0,
+            cpuUtilization: 0,
+            ramUtilization: 0
+        };
+
+        const linkData = {
+            id: '',
+            name: '',
+            status: '',
+            interconnectionStatsArray: []
+        };
+
+        const linksInterconnectionStatusObject = {
+            sourceLocationId: '',
+            sourceLocationName: '',
+            destinationLocationId: '',
+            destinationLocationName: '',
+            connectionStatus: '',
+            latencyMonitoringData: ''
+        };
+
+        // gathering raw data from the target Pritunl installation
+
+        const rawData = {
+            hostsData: {},
+            serversData: {},
+            linksData: {},
+            linkLocationsData: {},
+            linkHostsData: [],
+            hostsLoadData: {},
+            serverBandwidthData: {},
+        };
+
         try {
-            // the metrics itself
-            // 1. Server status (can be 0 - online and 1 - offline) One metric per each server, type is gauge
-            // 2. Users online, total. One metric per server, type is gauge
-            // 3. Server throughput, egress, bytes per second. One metric per server, type is gauge
-            // 4. Server throughput, ingress, bytes per second. One metric per server, type is gauge
-            // 5. Host status (can be 0 - online and 1 - offline). One metric per each host, type is gauge
-            // 6. Host CPU utilization, momentary, percents. One metric per host, type is gauge
-            // 7. Host RAM utilization, momentary, percents. One metric per hots, type is gauge
-            // 8. Link status (can be 0 - online and 1 - offline). One metric per each link, type is gauge
-            // 9. Links location to location delay, momentary, ms. One metric per each possible combination of both source link, destination link, source host and destination host
-            // 10. Link location to location connection status (can be 0 - up or 1 - down). One metric per each possible combination of both source link and destination link
-
-            const linksPrettyData = [];
-            const hostsPrettyData = [];
-            const serverPrettyData = [];
-
-            const serverData = {
-                id: '',
-                name: '',
-                status: '',
-                usersConnected: 0,
-                ingressThroughput: 0,
-                ingressTotal: 0,
-                egressThroughput: 0,
-                egressTotal: 0
-            };
-
-            const hostData = {
-                id: '',
-                name: '',
-                status: '',
-                usersConnected: 0,
-                cpuUtilization: 0,
-                ramUtilization: 0
-            };
-
-            const linkData = {
-                id: '',
-                name: '',
-                status: '',
-                interconnectionStatsArray: []
-            };
-
-            const linksInterconnectionStatusObject = {
-                sourceLocationId: '',
-                sourceLocationName: '',
-                destinationLocationId: '',
-                destinationLocationName: '',
-                connectionStatus: '',
-                latencyMonitoringData: ''
-            };
-
-            // gathering raw data from the target Pritunl installation
-
-            const linkLocationsRawData = {};
-            const hostsLoadRawData = {};
-            const serverBandwidthRawData = {};
-            const linkHostsRawData = [];
-
             await this.loggerInstance.debug('Fetching the hosts list...');
-            const hosts = await this.apiClient.listHosts();
+            rawData.hostsData = await this.apiClient.listHosts();
             await this.loggerInstance.debug('Successfully fetched the hosts list');
 
             await this.loggerInstance.debug('Fetching the hosts load stats...');
-            for (const host of hosts) {
-                hostsLoadRawData[host.id] = await this.apiClient.getHostUsageData(host.id);
+            for (const host of rawData.hostsData) {
+                rawData.hostsLoadData[host.id] = await this.apiClient.getHostUsageData(host.id);
             }
             await this.loggerInstance.debug('Successfully fetched the hosts load stats');
 
             await this.loggerInstance.debug('Fetching the links list...');
-            const links = await this.apiClient.listLinks();
+            rawData.linksData = await this.apiClient.listLinks();
             await this.loggerInstance.debug('Successfully fetched the links list');
 
             await this.loggerInstance.debug('Fetching the link locations list...');
-            for (const link of links.links) {
+            for (const link of rawData.linksData.links) {
                 const linkLocation = await this.apiClient.listLinkLocations(link.id);
 
                 for (const linkLocationLoop of linkLocation) {
-                    linkLocationsRawData[linkLocationLoop.id] = linkLocationLoop;
-                    linkHostsRawData.push(...linkLocationLoop['hosts']);
+                    rawData.linkLocationsData[linkLocationLoop.id] = linkLocationLoop;
+                    rawData.linkHostsData.push(...linkLocationLoop['hosts']);
                 }
             }
             await this.loggerInstance.debug('Successfully fetched the link locations list');
 
             await this.loggerInstance.debug('Fetching the servers list...');
-            const servers = await this.apiClient.listServers();
+            rawData.serversData = await this.apiClient.listServers();
             await this.loggerInstance.debug('Successfully fetched the servers list');
 
             await this.loggerInstance.debug('Fetching the servers bandwidth stats...');
-            for (const server of servers) {
-                serverBandwidthRawData[server.id] = await this.apiClient.getServerBandwidthData(server.id);
+            for (const server of rawData.serversData) {
+                rawData.serverBandwidthData[server.id] = await this.apiClient.getServerBandwidthData(server.id);
             }
             await this.loggerInstance.debug('Successfully fetched the servers bandwidth stats');
             await this.loggerInstance.debug('All the raw metrics data fetched, processing...');
 
+        } catch (err) {
+            throw new Error('Failed to fetch raw metrics data: ' + err);
+        }
+
+        try {
             // servers block
-            for (const server of servers) {
+            for (const server of rawData.serversData) {
                 const prettyData = JSON.parse(JSON.stringify(serverData));
                 prettyData.id = server.id;
                 prettyData.name = server.name;
                 prettyData.status = server.status;
                 prettyData.usersConnected = server['users_online'];
-                prettyData.ingressThroughput = serverBandwidthRawData[server.id]['received'];
-                prettyData.ingressTotal = serverBandwidthRawData[server.id]['received_total'];
-                prettyData.egressThroughput = serverBandwidthRawData[server.id]['sent'];
-                prettyData.egressTotal = serverBandwidthRawData[server.id]['sent_total'];
+                prettyData.ingressThroughput = rawData.serverBandwidthData[server.id]['received'];
+                prettyData.ingressTotal = rawData.serverBandwidthData[server.id]['received_total'];
+                prettyData.egressThroughput = rawData.serverBandwidthData[server.id]['sent'];
+                prettyData.egressTotal = rawData.serverBandwidthData[server.id]['sent_total'];
 
                 serverPrettyData.push(prettyData);
             }
             await this.loggerInstance.debug('Servers data processed...');
+        } catch (err) {
+            throw new Error('Failed to process raw servers data: ' + err);
+        }
 
-
+        try {
             // hosts block
-            for (const host of hosts) {
+            for (const host of rawData.hostsData) {
                 const prettyData = JSON.parse(JSON.stringify(hostData));
                 prettyData.id = host.id;
                 prettyData.name = host.name;
                 prettyData.status = host.status;
                 prettyData.usersConnected = host['users_online'];
-                prettyData.cpuUtilization = hostsLoadRawData[host.id]['cpu'];
-                prettyData.ramUtilization = hostsLoadRawData[host.id]['mem'];
+                prettyData.cpuUtilization = rawData.hostsLoadData[host.id]['cpu'];
+                prettyData.ramUtilization = rawData.hostsLoadData[host.id]['mem'];
 
                 hostsPrettyData.push(prettyData);
             }
             await this.loggerInstance.debug('Hosts data processed...');
+        } catch (err) {
+            throw new Error('Failed to process raw hosts data: ' + err);
+        }
 
+        try {
             // links block
-            for (const link of links.links) {
+            for (const link of rawData.linksData.links) {
                 const prettyData = JSON.parse(JSON.stringify(linkData));
                 prettyData.id = link.id;
                 prettyData.name = link.name;
@@ -185,18 +212,18 @@ class DataCollector {
 
                 const interconnectionStatsArray = [];
 
-                for (const locationId of Object.getOwnPropertyNames(linkLocationsRawData)) {
-                    if (linkLocationsRawData[locationId]['link_id'] !== link.id) {
+                for (const locationId of Object.getOwnPropertyNames(rawData.linkLocationsData)) {
+                    if (rawData.linkLocationsData[locationId]['link_id'] !== link.id) {
                         continue;
                     }
 
                     const latencyMonitoringData = [];
 
-                    for (const host of linkLocationsRawData[locationId]['hosts']) {
+                    for (const host of rawData.linkLocationsData[locationId]['hosts']) {
                         for (const key of Object.getOwnPropertyNames(host['hosts'])) {
                             // iterating through the location's link clients (hosts)
 
-                            const dstHost = linkHostsRawData.find((element) => {
+                            const dstHost = rawData.linkHostsData.find((element) => {
                                 if (element.id === key) {
                                     return true;
                                 }
@@ -217,16 +244,16 @@ class DataCollector {
                         }
                     }
 
-                    for (const peer of linkLocationsRawData[locationId]['peers']) {
+                    for (const peer of rawData.linkLocationsData[locationId]['peers']) {
                         const prettyInterconnectionData = JSON.parse(JSON.stringify(linksInterconnectionStatusObject));
-                        prettyInterconnectionData.sourceLocationId = linkLocationsRawData[locationId]['id'];
-                        prettyInterconnectionData.sourceLocationName = linkLocationsRawData[locationId]['name'];
+                        prettyInterconnectionData.sourceLocationId = rawData.linkLocationsData[locationId]['id'];
+                        prettyInterconnectionData.sourceLocationName = rawData.linkLocationsData[locationId]['name'];
                         prettyInterconnectionData.destinationLocationId = peer.id;
                         prettyInterconnectionData.destinationLocationName = peer.name;
                         prettyInterconnectionData.connectionStatus = peer.status;
 
                         prettyInterconnectionData.latencyMonitoringData = latencyMonitoringData.filter((element) => {
-                            if (element.srcLocationId === linkLocationsRawData[locationId]['id'] && element.dstLocationId === peer.id) {
+                            if (element.srcLocationId === rawData.linkLocationsData[locationId]['id'] && element.dstLocationId === peer.id) {
                                 return true;
                             }
                         });
@@ -238,24 +265,28 @@ class DataCollector {
                 linksPrettyData.push(prettyData);
             }
             await this.loggerInstance.debug('Links data processed...');
+        } catch (err) {
+            throw new Error('Failed to process raw links data: ' + err);
+        }
 
+        try {
+            await this.loggerInstance.debug('Storing the metrics data...');
             await metricsDataStorage.storeHostMetricsData({data: hostsPrettyData});
             await metricsDataStorage.storeServerMetricsData({data: serverPrettyData});
             await metricsDataStorage.storeLinkMetricsData({data: linksPrettyData});
-
-            await this.loggerInstance.debug('Data stored...');
-            await this.loggerInstance.info('Raw metrics data updated');
-
+            await this.loggerInstance.debug('Metrics data stored');
         } catch (err) {
-            throw new Error('Failed to update raw metrics data: ' + err);
+            throw new Error('Failed to store processed metrics data: ' + err);
         }
+
+        await this.loggerInstance.info('Metrics data updated');
     };
 
     async getRawMetrics() {
         try {
             return metricsDataStorage.getMetricsData();
         } catch (err) {
-            throw new Error('Failed to retrieve raw metrics data: ' + err);
+            throw new Error('Failed to retrieve metrics data from data storage: ' + err);
         }
     };
 }

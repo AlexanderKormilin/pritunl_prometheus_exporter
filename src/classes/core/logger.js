@@ -13,9 +13,8 @@ class logger {
         this.winstonLogger = winston.createLogger({
             level: this.lvl,
             format: combine(
-                colorize({ all: true }),
                 timestamp(),
-                printf((info) => '[' + info.timestamp + '] ' + info.level + ': ' + info.message.toString())
+                printf(({ level, message, timestamp, ...meta }) => '[' + timestamp + '] ' + level + ': ' + message + ' ' + (meta ? JSON.stringify(meta) : '')),
             ),
             transports: [
                 new winston.transports.Console({level: this.lvl})
