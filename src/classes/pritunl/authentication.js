@@ -77,7 +77,7 @@ class PritunlApiAuthentication {
             await this.loggerInstance.debug('Pritunl API query OK (' + options.method + ' ' + url + ')', result);
             return result;
         } catch (err) {
-            await this.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + '). Error: ' + err.message);
+            await this.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + ')', err);
             throw err;
         }
     }

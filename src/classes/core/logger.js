@@ -1,5 +1,6 @@
 const winston = require('winston');
-const { combine, timestamp, printf, colorize } = winston.format;
+const util = require('node:util');
+const {combine, timestamp, printf} = winston.format;
 
 class logger {
     constructor({
@@ -14,7 +15,22 @@ class logger {
             level: this.lvl,
             format: combine(
                 timestamp(),
-                printf(({ level, message, timestamp, ...meta }) => '[' + timestamp + '] ' + level + ': ' + message + ' ' + (meta ? JSON.stringify(meta) : '')),
+                printf(({message, timestamp, level, ...meta}) => {
+                    const test = Object.getOwnPropertyNames(meta);
+                    if (test.includes('metadata')) {
+
+                        let parsedMeta;
+
+                        try {
+                            parsedMeta = JSON.stringify(meta['metadata']);
+                        } catch (err) {
+                            parsedMeta = JSON.stringify(util.inspect(meta['metadata'], {depth: 3}));
+                        }
+                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\', metadata: ' + JSON.parse(parsedMeta) + '}';
+                    } else {
+                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\'}';
+                    }
+                }),
             ),
             transports: [
                 new winston.transports.Console({level: this.lvl})
@@ -24,15 +40,27 @@ class logger {
     };
 
     async info(message, meta) {
-        await this.winstonLogger.log('info', message, meta);
+        if (meta) {
+            await this.winstonLogger.log('info', message, {metadata: meta});
+        } else {
+            await this.winstonLogger.log('info', message, null);
+        }
     }
 
     async error(message, meta) {
-        await this.winstonLogger.log('error', message, meta);
+        if (meta) {
+            await this.winstonLogger.log('error', message, {metadata: meta});
+        } else {
+            await this.winstonLogger.log('error', message, null);
+        }
     }
 
     async debug(message, meta) {
-        await this.winstonLogger.log('debug', message, meta);
+        if (meta) {
+            await this.winstonLogger.log('debug', message, {metadata: meta});
+        } else {
+            await this.winstonLogger.log('debug', message, null);
+        }
     }
 
 }
