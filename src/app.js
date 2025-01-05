@@ -25,7 +25,7 @@ const DataCollector = new dataCollector({
     loggerInstance: Logger
 });
 
-const metricsObserver = require('./classes/core/prometheus/observer');
+const metricsObserver = require('./classes/prometheus/observer');
 const MetricsObserver = new metricsObserver({
     rawDataCollectorInstance: DataCollector,
     loggerInstance: Logger
