@@ -1,7 +1,7 @@
 /**
  * @fileOverview Exactly what it sounds like - the application itself
  * @author Alexander Kormilin
- * @version 1.1.3
+ * @version 1.2.0
  */
 
 const express = require('express');

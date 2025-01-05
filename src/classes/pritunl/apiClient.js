@@ -1,7 +1,7 @@
 /**
  * @fileOverview The high-lvl API client for Pritunl
  * @author Alexander Kormilin
- * @version 1.1.3
+ * @version 1.2.0
  */
 
 const PritunlBaseClient = require('./base');

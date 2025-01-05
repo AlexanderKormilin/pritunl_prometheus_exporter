@@ -1,7 +1,7 @@
 /**
  * @fileOverview Utils used to process metrics requests
  * @author Alexander Kormilin
- * @version 1.1.3
+ * @version 1.2.0
  */
 
 module.exports.getGetMetricsEndpointHandlerFn = (metricsObserver, loggerInstance, path) => {

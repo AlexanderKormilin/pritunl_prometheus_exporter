@@ -2,7 +2,7 @@
  * @fileOverview And this is the entity that is responsible for conversion of the "raw" data to
  * the Prometheus-friendly metrics string
  * @author Alexander Kormilin
- * @version 1.1.3
+ * @version 1.2.0
  */
 
 const client = require('prom-client');
