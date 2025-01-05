@@ -5,7 +5,7 @@ const metricsDataStore = dataStorage.create({
     inMemoryOnly: true
 });
 
-exporter.ensureStructure = async function ensureStructure() {
+exporter.ensureStructure = async () => {
     try {
         const objectToStoreServerMetrics = {
             type: 'serverMetrics',
@@ -30,9 +30,9 @@ exporter.ensureStructure = async function ensureStructure() {
     }
 };
 
-exporter.storeServerMetricsData = async function storeServerMetricsData({
+exporter.storeServerMetricsData = async ({
     data
-} = {}) {
+} = {}) => {
     try {
         const objectToStore = {
             type: 'serverMetrics',
@@ -44,9 +44,9 @@ exporter.storeServerMetricsData = async function storeServerMetricsData({
     }
 };
 
-exporter.storeHostMetricsData = async function storeHostMetricsData({
+exporter.storeHostMetricsData = async ({
     data
-} = {}) {
+} = {}) => {
     try {
         const objectToStore = {
             type: 'hostMetrics',
@@ -58,9 +58,9 @@ exporter.storeHostMetricsData = async function storeHostMetricsData({
     }
 };
 
-exporter.storeLinkMetricsData = async function storeLinkMetricsData({
+exporter.storeLinkMetricsData = async ({
     data
-} = {}) {
+} = {}) => {
     try {
         const objectToStore = {
             type: 'linkMetrics',
@@ -72,7 +72,7 @@ exporter.storeLinkMetricsData = async function storeLinkMetricsData({
     }
 };
 
-exporter.getMetricsData = async function getMetricsData() {
+exporter.getMetricsData = async () => {
     try {
         return await metricsDataStore.find({});
     } catch (err) {
