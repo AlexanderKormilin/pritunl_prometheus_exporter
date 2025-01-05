@@ -2,7 +2,7 @@ const winston = require('winston');
 const util = require('node:util');
 const {combine, timestamp, printf} = winston.format;
 
-class logger {
+class Logger {
     constructor({
         logLvl
     }) {
@@ -71,4 +71,4 @@ class logger {
 
 }
 
-module.exports = logger;
+module.exports = Logger;

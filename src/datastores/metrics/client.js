@@ -1,11 +1,10 @@
-const exporter = module.exports;
 const dataStorage = require('nedb-promises');
 
 const metricsDataStore = dataStorage.create({
     inMemoryOnly: true
 });
 
-exporter.ensureStructure = async () => {
+module.exports.ensureStructure = async () => {
     try {
         const objectToStoreServerMetrics = {
             type: 'serverMetrics',
@@ -30,7 +29,7 @@ exporter.ensureStructure = async () => {
     }
 };
 
-exporter.storeServerMetricsData = async ({
+module.exports.storeServerMetricsData = async ({
     data
 } = {}) => {
     try {
@@ -44,7 +43,7 @@ exporter.storeServerMetricsData = async ({
     }
 };
 
-exporter.storeHostMetricsData = async ({
+module.exports.storeHostMetricsData = async ({
     data
 } = {}) => {
     try {
@@ -58,7 +57,7 @@ exporter.storeHostMetricsData = async ({
     }
 };
 
-exporter.storeLinkMetricsData = async ({
+module.exports.storeLinkMetricsData = async ({
     data
 } = {}) => {
     try {
@@ -72,7 +71,7 @@ exporter.storeLinkMetricsData = async ({
     }
 };
 
-exporter.getMetricsData = async () => {
+module.exports.getMetricsData = async () => {
     try {
         return await metricsDataStore.find({});
     } catch (err) {
