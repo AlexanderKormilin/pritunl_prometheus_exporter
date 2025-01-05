@@ -1,12 +1,12 @@
 /**
- * @fileOverview And this is the entity that is responsible for conversation of the raw data to
- * the Prometheus friendly metrics string
+ * @fileOverview And this is the entity that is responsible for conversion of the "raw" data to
+ * the Prometheus-friendly metrics string
  * @author Alexander Kormilin
  * @version 1.1.2
  */
 
 const client = require('prom-client');
-const metrics = require('./metrics');
+const metricsDefinitionHelper = require('./metrics');
 
 class Observer {
     constructor({
@@ -15,7 +15,7 @@ class Observer {
      } = {}) {
         this.loggerInstance = loggerInstance;
         this.rawDataCollectorInstance = rawDataCollectorInstance;
-        this.metrics = new metrics();
+        this.metricsDefinitionHelper = new metricsDefinitionHelper();
     }
 
     async prepareMetrics() {
@@ -28,26 +28,26 @@ class Observer {
 
             // Host metrics
             for (const host of hostMetrics) {
-                this.metrics.metrics.host.host_status.set({hostName: host.name}, host.status === 'online' ? 0 : 1);
-                this.metrics.metrics.host.host_users_connected.set({
+                this.metricsDefinitionHelper.metrics.host.host_status.set({hostName: host.name}, host.status === 'online' ? 0 : 1);
+                this.metricsDefinitionHelper.metrics.host.host_users_connected.set({
                     hostName: host.name
                 }, host.usersConnected ? host.usersConnected : 0);
 
-                this.metrics.metrics.host.host_cpu_utilization.set({
+                this.metricsDefinitionHelper.metrics.host.host_cpu_utilization.set({
                     hostName: host.name
                 }, host.cpuUtilization * 100);
-                this.metrics.metrics.host.host_ram_utilization.set({
+                this.metricsDefinitionHelper.metrics.host.host_ram_utilization.set({
                     hostName: host.name
                 }, host.ramUtilization * 100);
             }
 
             // Link metrics
             for (const link of linkMetrics) {
-                this.metrics.metrics.link.link_status.set({linkName: link.name}, 0);
+                this.metricsDefinitionHelper.metrics.link.link_status.set({linkName: link.name}, 0);
 
                 for (const interconnection of link.interconnectionStatsArray) {
 
-                    this.metrics.metrics.link.link_locations_connection_status.set({
+                    this.metricsDefinitionHelper.metrics.link.link_locations_connection_status.set({
                         srcLinkName: interconnection.sourceLocationName,
                         dstLinkName: interconnection.destinationLocationName
                     }, interconnection.connectionStatus === 'connected' ? 0 : 1);
@@ -68,21 +68,21 @@ class Observer {
 
                     for (const hostPair of interconnection.latencyMonitoringData) {
 
-                        this.metrics.metrics.link.link_locations_connection_latency.set({
+                        this.metricsDefinitionHelper.metrics.link.link_locations_connection_latency.set({
                             srcLinkName: interconnection.sourceLocationName,
                             dstLinkName: interconnection.destinationLocationName,
                             dstHostName: hostPair.dstHostName,
                             srcHostName: hostPair.srcHostName
                         }, hostPair.latency / 1000);
-                        this.metrics.metrics.link.link_locations_connection_latency_min_across_hosts.set({
+                        this.metricsDefinitionHelper.metrics.link.link_locations_connection_latency_min_across_hosts.set({
                             srcLinkName: interconnection.sourceLocationName,
                             dstLinkName: interconnection.destinationLocationName
                         }, minLatency / 1000);
-                        this.metrics.metrics.link.link_locations_connection_latency_max_across_hosts.set({
+                        this.metricsDefinitionHelper.metrics.link.link_locations_connection_latency_max_across_hosts.set({
                             srcLinkName: interconnection.sourceLocationName,
                             dstLinkName: interconnection.destinationLocationName
                         }, maxLatency / 1000);
-                        this.metrics.metrics.link.link_locations_connection_latency_monitoring_status.set({
+                        this.metricsDefinitionHelper.metrics.link.link_locations_connection_latency_monitoring_status.set({
                             srcLinkName: interconnection.sourceLocationName,
                             dstLinkName: interconnection.destinationLocationName,
                             dstHostName: hostPair.dstHostName,
@@ -94,16 +94,16 @@ class Observer {
 
             // Server metrics
             for (const server of serverMetrics) {
-                this.metrics.metrics.server.server_status.set({
+                this.metricsDefinitionHelper.metrics.server.server_status.set({
                     serverName: server.name
                 }, server.status === 'online' ? 0 : 1);
-                this.metrics.metrics.server.server_users_connected.set({
+                this.metricsDefinitionHelper.metrics.server.server_users_connected.set({
                     serverName: server.name
                 }, server.usersConnected ? server.usersConnected : 0);
-                this.metrics.metrics.server.server_egress_throughput_bytes.set({
+                this.metricsDefinitionHelper.metrics.server.server_egress_throughput_bytes.set({
                     serverName: server.name
                 }, server.egressThroughput);
-                this.metrics.metrics.server.server_ingress_throughput_bytes.set({
+                this.metricsDefinitionHelper.metrics.server.server_ingress_throughput_bytes.set({
                     serverName: server.name
                 }, server.ingressThroughput);
             }

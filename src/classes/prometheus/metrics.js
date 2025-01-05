@@ -6,7 +6,7 @@
 
 const client = require('prom-client');
 
-class Metrics {
+class MetricsDefinitionHelper {
     constructor() {
         this.metrics = {
             server: {
@@ -89,4 +89,4 @@ class Metrics {
     }
 }
 
-module.exports = Metrics;
+module.exports = MetricsDefinitionHelper;
