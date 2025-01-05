@@ -95,7 +95,9 @@ class MetricsDatastore {
             if (this.initialized === false) {
                 await this.initialize();
             }
-            return this.storage.find({});
+            const data = await this.storage.find({});
+            await this.loggerInstance.debug('Metrics data fetched', data);
+            return data;
         } catch (err) {
             throw err;
         }

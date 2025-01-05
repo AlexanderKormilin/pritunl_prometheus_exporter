@@ -14,6 +14,15 @@ class Pritunl extends PritunlBaseClient {
         selfSignedCaPath,
         loggerInstance
     }){
+        if (!apiSecret || apiSecret === '') {
+            throw new Error('Pritunl API secret may not be undefined or empty');
+        } else if (!apiToken) {
+            throw new Error('Pritunl API token may not be undefined or empty');
+        } else if (!baseUrl) {
+            throw new Error('Pritunl installation base URL may not be undefined or empty');
+        } else if (!loggerInstance) {
+            throw new Error('Logger instance may not be undefined or empty');
+        }
         super({
             baseUrl: baseUrl,
             apiToken: apiToken,

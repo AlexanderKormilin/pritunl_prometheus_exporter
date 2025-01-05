@@ -12,26 +12,11 @@ const AxiosHeaders = require('axios').AxiosHeaders;
 
 class PritunlBaseClient {
     constructor (props) {
-        const {baseUrl, apiToken, apiSecret, selfSignedCaPath} = props;
-        if (!baseUrl || !apiToken || !apiSecret) {
-            const {PRI_BASE_URL, PRI_API_TOKEN, PRI_API_SECRET} = process.env;
-            if (PRI_BASE_URL && PRI_API_TOKEN && PRI_API_SECRET) {
-                this.props = {
-                    ...props,
-                    baseUrl: PRI_BASE_URL,
-                    apiToken: PRI_API_TOKEN,
-                    apiSecret: PRI_API_SECRET
-                };
-            } else {
-                throw new Error("You have to set valid values for baseUrl, apiToken, and apiSecret");
-            }
-        } else {
-            this.props = props;
-        }
+        this.props = props;
 
-        if (selfSignedCaPath && fs.existsSync(selfSignedCaPath)) {
+        if (props.selfSignedCaPath && fs.existsSync(props.selfSignedCaPath)) {
             axios.defaults.httpsAgent = new https.Agent({
-                ca: [fs.readFileSync(selfSignedCaPath)],
+                ca: [fs.readFileSync(props.selfSignedCaPath)],
                 checkServerIdentity: () => {
                     return null;
                 },

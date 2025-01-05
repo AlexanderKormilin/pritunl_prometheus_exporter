@@ -279,16 +279,6 @@ class DataCollector {
 
         await this.loggerInstance.info('Metrics data update completed successfully');
     };
-
-    async getMetricsData() {
-        try {
-            const data = await this.metricsDataStorage.getMetricsData();
-            await this.loggerInstance.debug('Metrics data fetched', data);
-            return data;
-        } catch (err) {
-            throw new Error('Failed to retrieve metrics data from data storage: ' + err);
-        }
-    };
 }
 
 module.exports = DataCollector;
