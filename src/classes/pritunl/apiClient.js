@@ -4,7 +4,7 @@
  * @version 1.1.2
  */
 
-const PritunlBaseClient = require('./pritunl');
+const PritunlBaseClient = require('./base');
 
 class Pritunl extends PritunlBaseClient {
     constructor({

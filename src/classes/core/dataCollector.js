@@ -5,7 +5,6 @@
  * @version 1.1.2
  */
 
-const metricsDataStorage = require('../../datastores/metrics/client');
 const PritunlApiClient = require('../pritunl/apiClient');
 
 class DataCollector {
@@ -14,7 +13,8 @@ class DataCollector {
         pritunlServerApiToken,
         pritunlServerApiSecret,
         metricsUpdateIntervalSeconds,
-        loggerInstance
+        loggerInstance,
+        metricsDataStorage
     }) {
         this.started = false;
         this.updateTimer = null;
@@ -31,13 +31,6 @@ class DataCollector {
 
     async start() {
         await this.loggerInstance.debug('Starting raw data collector...');
-        try {
-            await this.loggerInstance.debug('Ensuring datastore structure...');
-            await this.metricsDataStorage.ensureStructure();
-            await this.loggerInstance.debug('Datastore structure ready');
-        } catch (err) {
-            throw new Error('Failed to ensure metrics datastore structure: ' + err.message);
-        }
         try {
             await this.updateMetricsData();
         } catch (err) {

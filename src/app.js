@@ -14,6 +14,11 @@ const Logger = new logger({
     logLvl: process.env.LOG_LEVEL
 });
 
+const metricsDataStorage = require('./classes/datastore/metrics');
+const MetricsDataStorage = new metricsDataStorage({
+    loggerInstance: Logger
+});
+
 const dataCollector = require('./classes/core/dataCollector');
 const DataCollector = new dataCollector({
     pritunlServerFQDN: process.env.PRITUNL_SERVER_FQDN,
@@ -22,7 +27,8 @@ const DataCollector = new dataCollector({
     metricsUpdateIntervalSeconds: process.env.DATA_PERIODIC_UPDATE_INTERVAL_SECONDS ?
         Number.parseInt(process.env.DATA_PERIODIC_UPDATE_INTERVAL_SECONDS) :
         30,
-    loggerInstance: Logger
+    loggerInstance: Logger,
+    metricsDataStorage: MetricsDataStorage
 });
 
 const metricsObserver = require('./classes/prometheus/observer');
