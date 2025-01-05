@@ -1,6 +1,6 @@
-const PritunlApiAuthentication = require('./authentication');
+const PritunlBaseClient = require('./pritunl');
 
-class Pritunl extends PritunlApiAuthentication {
+class Pritunl extends PritunlBaseClient {
     constructor({
         baseUrl,
         apiToken,

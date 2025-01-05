@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const AxiosHeaders = require('axios').AxiosHeaders;
 
-class PritunlApiAuthentication {
+class PritunlBaseClient {
     constructor (props) {
         const {baseUrl, apiToken, apiSecret, selfSignedCaPath} = props;
         if (!baseUrl || !apiToken || !apiSecret) {
@@ -83,4 +83,4 @@ class PritunlApiAuthentication {
     }
 }
 
-module.exports = PritunlApiAuthentication;
+module.exports = PritunlBaseClient;
