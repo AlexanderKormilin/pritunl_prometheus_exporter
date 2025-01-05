@@ -1,7 +1,7 @@
 /**
  * @fileOverview The application itself, Pritunl API metrics exporter for Prometheus
  * @author Alexander Kormilin
- * @version 1.1.2
+ * @version 1.1.3
  */
 
 require('dotenv').config({path: './secrets/.env'});
