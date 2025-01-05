@@ -40,7 +40,7 @@ class PritunlBaseClient {
         this.loggerInstance = this.props.loggerInstance;
     }
 
-    async makeRequest(options = {}){
+    async makeRequest(options){
         const {apiToken, apiSecret, baseUrl} = this.props;
         const defaultOptions = {
             apiToken,
