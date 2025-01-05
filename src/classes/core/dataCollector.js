@@ -43,7 +43,8 @@ class DataCollector {
                 await this.loggerInstance.error('Metrics update timer failure', err);
             }
         }, (Number.parseInt(this.metricsUpdateIntervalSeconds) * 1000));
-        await this.loggerInstance.debug('Background update timer set and enabled, timeout is: ' + this.metricsUpdateIntervalSeconds + ' seconds...');
+        await this.loggerInstance.debug('Background update timer set and enabled, timeout is: ' +
+            this.metricsUpdateIntervalSeconds + ' seconds...');
         this.started = true;
         await this.loggerInstance.debug('Raw data collector started');
     };
@@ -181,6 +182,8 @@ class DataCollector {
                 serverPrettyData.push(prettyData);
             }
             await this.loggerInstance.debug('Servers data processed...');
+            await this.metricsDataStorage.storeServerMetricsData({data: serverPrettyData});
+            await this.loggerInstance.debug('Updated servers data stored...');
         } catch (err) {
             throw new Error('Failed to process raw servers data: ' + err);
         }
@@ -199,6 +202,8 @@ class DataCollector {
                 hostsPrettyData.push(prettyData);
             }
             await this.loggerInstance.debug('Hosts data processed...');
+            await this.metricsDataStorage.storeHostMetricsData({data: hostsPrettyData});
+            await this.loggerInstance.debug('Updated hosts data stored...');
         } catch (err) {
             throw new Error('Failed to process raw hosts data: ' + err);
         }
@@ -266,26 +271,20 @@ class DataCollector {
                 linksPrettyData.push(prettyData);
             }
             await this.loggerInstance.debug('Links data processed...');
+            await this.metricsDataStorage.storeLinkMetricsData({data: linksPrettyData});
+            await this.loggerInstance.debug('Updated links data stored...');
         } catch (err) {
             throw new Error('Failed to process raw links data: ' + err);
         }
 
-        try {
-            await this.loggerInstance.debug('Storing the metrics data...');
-            await this.metricsDataStorage.storeHostMetricsData({data: hostsPrettyData});
-            await this.metricsDataStorage.storeServerMetricsData({data: serverPrettyData});
-            await this.metricsDataStorage.storeLinkMetricsData({data: linksPrettyData});
-            await this.loggerInstance.debug('Metrics data stored');
-        } catch (err) {
-            throw new Error('Failed to store processed metrics data: ' + err);
-        }
-
-        await this.loggerInstance.info('Metrics data updated');
+        await this.loggerInstance.info('Metrics data update completed successfully');
     };
 
     async getMetricsData() {
         try {
-            return this.metricsDataStorage.getMetricsData();
+            const data = await this.metricsDataStorage.getMetricsData();
+            await this.loggerInstance.debug('Metrics data fetched', data);
+            return data;
         } catch (err) {
             throw new Error('Failed to retrieve metrics data from data storage: ' + err);
         }
