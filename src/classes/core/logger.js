@@ -22,11 +22,15 @@ class logger {
                         let parsedMeta;
 
                         try {
-                            parsedMeta = JSON.stringify(meta['metadata']);
+                            parsedMeta = JSON.stringify(meta['metadata'], null, 2);
                         } catch (err) {
-                            parsedMeta = JSON.stringify(util.inspect(meta['metadata'], {depth: 3}));
+                            parsedMeta = util.inspect(meta['metadata'], {depth: 3});
                         }
-                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\', metadata: ' + JSON.parse(parsedMeta) + '}';
+
+                        const regexp = new RegExp('\\\\[n]\\s', 'gm');
+                        parsedMeta = parsedMeta.replaceAll(regexp, ' \n');
+
+                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\', metadata: ' + parsedMeta + '}';
                     } else {
                         return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\'}';
                     }
