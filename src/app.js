@@ -1,7 +1,7 @@
 require('dotenv').config({path: './secrets/.env'});
 
 const express = require('express');
-const expressListenersRegistrar = require('./api/registrar');
+const apiListenersRegistrar = require('./api/registrar');
 
 const logger = require('./classes/core/logger');
 const Logger = new logger({
@@ -35,7 +35,7 @@ const MetricsObserver = new metricsObserver({
         await DataCollector.start();
         await Logger.debug('Data collector started...');
 
-        expressListenersRegistrar.registerAllListeners(app, MetricsObserver, Logger);
+        apiListenersRegistrar.registerAllListeners(app, MetricsObserver, Logger);
         await Logger.debug('Metrics endpoint registered...');
 
         app.listen(Number.parseInt(process.env.PORT));
