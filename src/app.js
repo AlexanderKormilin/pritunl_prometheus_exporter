@@ -1,7 +1,7 @@
 require('dotenv').config({path: './secrets/.env'});
 
 const express = require('express');
-const expressListenersRegistrar = require('../src/apiListeners/registrar');
+const expressListenersRegistrar = require('./api/registrar');
 
 const logger = require('./classes/core/logger');
 const Logger = new logger({

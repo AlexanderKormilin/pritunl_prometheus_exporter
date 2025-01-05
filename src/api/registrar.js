@@ -1,5 +1,5 @@
 const exporter = module.exports;
-const getMetricsEndpoint = require('../apiListeners/getMetrics');
+const getMetricsEndpoint = require('.//getMetrics');
 
 // Registering all the listeners at once
 exporter.registerAllListeners = function registerAllListeners(expressReceiverInstance, metricsObserver, loggerInstance) {
