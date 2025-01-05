@@ -8,7 +8,8 @@ class logger {
     }) {
         const allowedLevels = ['info', 'error', 'debug'];
         if (allowedLevels.includes(logLvl) === false) {
-            throw new Error('Logging level must be one of the following: info, error or debug, but ' + logLvl + ' has been passed');
+            throw new Error('Logging level must be one of the following: info, error or debug, but '
+                + logLvl + ' has been passed');
         }
         this.lvl = logLvl;
         this.winstonLogger = winston.createLogger({
@@ -18,7 +19,6 @@ class logger {
                 printf(({message, timestamp, level, ...meta}) => {
                     const test = Object.getOwnPropertyNames(meta);
                     if (test.includes('metadata')) {
-
                         let parsedMeta;
 
                         try {
@@ -30,9 +30,11 @@ class logger {
                         const regexp = new RegExp('\\\\[n]\\s', 'gm');
                         parsedMeta = parsedMeta.replaceAll(regexp, ' \n');
 
-                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\', metadata: ' + parsedMeta + '}';
+                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' +
+                            message + '\', metadata: ' + parsedMeta + '}';
                     } else {
-                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' + message + '\'}';
+                        return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' +
+                            message + '\'}';
                     }
                 }),
             ),
