@@ -25,7 +25,7 @@ const DataCollector = new dataCollector({
     loggerInstance: Logger
 });
 
-const metricsObserver = require('./classes/core/prometheus/metricsObserver');
+const metricsObserver = require('./classes/core/prometheus/observer');
 const MetricsObserver = new metricsObserver({
     rawDataCollectorInstance: DataCollector,
     loggerInstance: Logger
@@ -35,16 +35,16 @@ const MetricsObserver = new metricsObserver({
     try {
         await Logger.info('App starting...');
 
-        const app = express();
+        const App = express();
         await Logger.debug('Created Express server instance...');
 
         await DataCollector.start();
         await Logger.debug('Data collector started...');
 
-        apiListenersRegistrar.registerAllListeners(app, MetricsObserver, Logger);
+        apiListenersRegistrar.registerAllListeners(App, MetricsObserver, Logger);
         await Logger.debug('Metrics endpoint registered...');
 
-        app.listen(Number.parseInt(process.env.PORT));
+        App.listen(Number.parseInt(process.env.PORT));
         await Logger.debug('Express server started, listening on port ' + process.env.PORT + '...');
         await Logger.info('Start sequence completed');
     } catch (err) {

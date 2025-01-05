@@ -8,7 +8,7 @@
 const client = require('prom-client');
 const metrics = require('./metrics');
 
-class MetricsObserver {
+class Observer {
     constructor({
         rawDataCollectorInstance,
         loggerInstance
@@ -118,4 +118,4 @@ class MetricsObserver {
     }
 }
 
-module.exports = MetricsObserver;
+module.exports = Observer;
