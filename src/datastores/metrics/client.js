@@ -1,3 +1,9 @@
+/**
+ * @fileOverview The persistent datastore module for the metrics data
+ * @author Alexander Kormilin
+ * @version 1.1.2
+ */
+
 const dataStorage = require('nedb-promises');
 
 const metricsDataStore = dataStorage.create({

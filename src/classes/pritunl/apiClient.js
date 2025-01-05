@@ -1,3 +1,9 @@
+/**
+ * @fileOverview The high-lvl API client for Pritunl
+ * @author Alexander Kormilin
+ * @version 1.1.2
+ */
+
 const PritunlBaseClient = require('./pritunl');
 
 class Pritunl extends PritunlBaseClient {

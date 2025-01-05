@@ -1,3 +1,10 @@
+/**
+ * @fileOverview This is just the wrapper used to distribute app components instances across consumers. And organize
+ * API handlers a bit.
+ * @author Alexander Kormilin
+ * @version 1.1.2
+ */
+
 const getMetricsEndpoint = require('./metrics/get');
 
 // Registering all the listeners at once

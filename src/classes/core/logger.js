@@ -1,3 +1,9 @@
+/**
+ * @fileOverview Exactly what it sounds like - a logger
+ * @author Alexander Kormilin
+ * @version 1.1.2
+ */
+
 const winston = require('winston');
 const util = require('node:util');
 const {combine, timestamp, printf} = winston.format;

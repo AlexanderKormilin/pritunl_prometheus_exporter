@@ -1,3 +1,9 @@
+/**
+ * @fileOverview The application itself, Pritunl API metrics exporter for Prometheus
+ * @author Alexander Kormilin
+ * @version 1.1.2
+ */
+
 require('dotenv').config({path: './secrets/.env'});
 
 const express = require('express');
@@ -19,7 +25,7 @@ const DataCollector = new dataCollector({
     loggerInstance: Logger
 });
 
-const metricsObserver = require('./classes/core/prometheusMetricsObserver');
+const metricsObserver = require('./classes/core/prometheus/metricsObserver');
 const MetricsObserver = new metricsObserver({
     rawDataCollectorInstance: DataCollector,
     loggerInstance: Logger
