@@ -1,7 +1,7 @@
 /**
  * @fileOverview This file is the definition of the datastore used by the app to store metrics data during operation
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 const dataStorage = require('nedb-promises');
 

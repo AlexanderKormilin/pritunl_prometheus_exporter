@@ -1,7 +1,7 @@
 /**
  * @fileOverview Exactly what it sounds like - a logger
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const winston = require('winston');

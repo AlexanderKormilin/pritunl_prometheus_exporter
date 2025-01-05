@@ -1,7 +1,7 @@
 /**
  * @fileOverview router file for the GET /metrics endpoint
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const util = require('./util');

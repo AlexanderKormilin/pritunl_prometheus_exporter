@@ -2,7 +2,7 @@
  * @fileOverview And this is the entity that is responsible for conversion of the "raw" data to
  * the Prometheus-friendly metrics string
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const client = require('prom-client');
@@ -10,18 +10,18 @@ const metricsDefinitionHelper = require('./metrics');
 
 class Observer {
     constructor({
-        rawDataCollectorInstance,
+        metricsDataStorage,
         loggerInstance
      } = {}) {
         this.loggerInstance = loggerInstance;
-        this.rawDataCollectorInstance = rawDataCollectorInstance;
+        this.metricsDataStorage = metricsDataStorage;
         this.metricsDefinitionHelper = new metricsDefinitionHelper();
     }
 
     async prepareMetrics() {
         try {
             // fetching the data
-            const allTheMetrics = await this.rawDataCollectorInstance.getMetricsData();
+            const allTheMetrics = await this.metricsDataStorage.getMetricsData();
             const serverMetrics = allTheMetrics.find((element) => element['type'] === 'serverMetrics')['data'];
             const linkMetrics = allTheMetrics.find((element) => element['type'] === 'linkMetrics')['data'];
             const hostMetrics = allTheMetrics.find((element) => element['type'] === 'hostMetrics')['data'];

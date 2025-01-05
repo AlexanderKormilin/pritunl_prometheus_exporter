@@ -1,7 +1,7 @@
 /**
  * @fileOverview The very basics of the Pritunl API client: authorization and generic APi call method
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const https = require('https');

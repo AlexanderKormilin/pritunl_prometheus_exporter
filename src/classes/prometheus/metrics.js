@@ -1,7 +1,7 @@
 /**
  * @fileOverview This file is the definition of the Prometheus metrics this app knows and able to produce
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const client = require('prom-client');

@@ -2,7 +2,7 @@
  * @fileOverview This file describes data collector - the entity responsible for querying metrics data from remote API,
  * as well as processing and storage of that data.
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const PritunlApiClient = require('../pritunl/apiClient');

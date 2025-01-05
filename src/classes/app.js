@@ -1,7 +1,7 @@
 /**
  * @fileOverview Exactly what it sounds like - the application itself
  * @author Alexander Kormilin
- * @version 1.2.0
+ * @version 1.2.1
  */
 
 const express = require('express');
@@ -35,8 +35,8 @@ class Application {
         });
 
         this.metricsObserver = new metricsObserver({
-            rawDataCollectorInstance: this.dataCollector,
-            loggerInstance: this.logger
+            loggerInstance: this.logger,
+            metricsDataStorage: this.metricsDataStorage
         });
     };
 
