@@ -5,7 +5,7 @@ module.exports.getGetMetricsEndpointHandlerFn = (metricsObserver, loggerInstance
                 await loggerInstance.info('Got a request on the ' + path + ' endpoint...');
                 await loggerInstance.debug('Preparing the Prometheus friendly metrics data...');
                 await metricsObserver.prepareMetrics();
-                const metricsText = metricsObserver.getMetrics();
+                const metricsText = await metricsObserver.getMetrics();
                 await loggerInstance.debug('Prometheus friendly metrics data ready');
                 response.type('text/plain');
                 response.send(metricsText);
