@@ -31,13 +31,13 @@ class DataCollector {
             throw new Error('Failed to ensure metrics datastore structure: ' + err.message);
         }
         try {
-            await this.updateMetrics();
+            await this.updateMetricsData();
         } catch (err) {
-            throw new Error('Failed to update metrics: ' + err.message);
+            throw new Error('Failed to update metrics during start sequence: ' + err.message);
         }
         this.updateTimer = setInterval(async () => {
             try {
-                await this.updateMetrics();
+                await this.updateMetricsData();
             } catch (err) {
                 await this.loggerInstance.error('Metrics update timer failure', err);
             }
@@ -57,7 +57,7 @@ class DataCollector {
         await this.loggerInstance.debug('Raw data collector stopped');
     };
 
-    async updateMetrics() {
+    async updateMetricsData() {
         await this.loggerInstance.info('Attempting to update metrics data...');
 
         // the metrics itself
@@ -143,7 +143,7 @@ class DataCollector {
                 const linkLocation = await this.apiClient.listLinkLocations(link.id);
 
                 for (const linkLocationLoop of linkLocation) {
-                    rawData.linkLocationsData[linkLocationLoop.id] = linkLocationLoop;
+                    rawData.linkLocationsData[linkLocationLoop['id']] = linkLocationLoop;
                     rawData.linkHostsData.push(...linkLocationLoop['hosts']);
                 }
             }
@@ -282,7 +282,7 @@ class DataCollector {
         await this.loggerInstance.info('Metrics data updated');
     };
 
-    async getRawMetrics() {
+    async getMetricsData() {
         try {
             return metricsDataStorage.getMetricsData();
         } catch (err) {

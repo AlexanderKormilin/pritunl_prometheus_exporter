@@ -83,10 +83,10 @@ class PrometheusMetricsObserver {
         this.rawDataCollectorInstance = rawDataCollectorInstance;
     }
 
-    async updateMetrics() {
+    async prepareMetrics() {
         try {
             // fetching the data
-            const allTheMetrics = await this.rawDataCollectorInstance.getRawMetrics();
+            const allTheMetrics = await this.rawDataCollectorInstance.getMetricsData();
             const serverMetrics = allTheMetrics.find((element) => element['type'] === 'serverMetrics')['data'];
             const linkMetrics = allTheMetrics.find((element) => element['type'] === 'linkMetrics')['data'];
             const hostMetrics = allTheMetrics.find((element) => element['type'] === 'hostMetrics')['data'];
