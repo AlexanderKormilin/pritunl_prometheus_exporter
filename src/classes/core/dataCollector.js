@@ -18,6 +18,7 @@ class DataCollector {
             baseUrl: pritunlServerFQDN,
             loggerInstance: loggerInstance
         });
+        this.metricsDataStorage = metricsDataStorage;
         this.loggerInstance = loggerInstance;
     }
 
@@ -25,7 +26,7 @@ class DataCollector {
         await this.loggerInstance.debug('Starting raw data collector...');
         try {
             await this.loggerInstance.debug('Ensuring datastore structure...');
-            await metricsDataStorage.ensureStructure();
+            await this.metricsDataStorage.ensureStructure();
             await this.loggerInstance.debug('Datastore structure ready');
         } catch (err) {
             throw new Error('Failed to ensure metrics datastore structure: ' + err.message);
@@ -271,9 +272,9 @@ class DataCollector {
 
         try {
             await this.loggerInstance.debug('Storing the metrics data...');
-            await metricsDataStorage.storeHostMetricsData({data: hostsPrettyData});
-            await metricsDataStorage.storeServerMetricsData({data: serverPrettyData});
-            await metricsDataStorage.storeLinkMetricsData({data: linksPrettyData});
+            await this.metricsDataStorage.storeHostMetricsData({data: hostsPrettyData});
+            await this.metricsDataStorage.storeServerMetricsData({data: serverPrettyData});
+            await this.metricsDataStorage.storeLinkMetricsData({data: linksPrettyData});
             await this.loggerInstance.debug('Metrics data stored');
         } catch (err) {
             throw new Error('Failed to store processed metrics data: ' + err);
@@ -284,7 +285,7 @@ class DataCollector {
 
     async getMetricsData() {
         try {
-            return metricsDataStorage.getMetricsData();
+            return this.metricsDataStorage.getMetricsData();
         } catch (err) {
             throw new Error('Failed to retrieve metrics data from data storage: ' + err);
         }
