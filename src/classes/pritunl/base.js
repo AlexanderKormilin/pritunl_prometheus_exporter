@@ -13,6 +13,7 @@ const AxiosHeaders = require('axios').AxiosHeaders;
 class PritunlBaseClient {
     constructor (props) {
         this.props = props;
+        // self-signed CA option check
         if (props.selfSignedCaPath && fs.existsSync(props.selfSignedCaPath)) {
             axios.defaults.httpsAgent = new https.Agent({
                 ca: [fs.readFileSync(props.selfSignedCaPath)],
@@ -22,10 +23,10 @@ class PritunlBaseClient {
                 keepAlive: false
             });
         }
+        // removing trailing slash
         if (this.props.baseUrl[this.props.baseUrl.length - 1] === "/") {
             this.props.baseUrl = this.props.baseUrl.slice(0, this.props.baseUrl.length - 1);
         }
-        this.loggerInstance = this.props.loggerInstance;
     }
 
     async makeRequest(options){
@@ -55,10 +56,10 @@ class PritunlBaseClient {
                 headers: headers,
                 data: options.data ? options.data : null,
             });
-            await this.loggerInstance.debug('Pritunl API query OK (' + options.method + ' ' + url + ')', result);
+            await this.props.loggerInstance.debug('Pritunl API query OK (' + options.method + ' ' + url + ')', result);
             return result;
         } catch (err) {
-            await this.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + ')', err);
+            await this.props.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + ')', err);
             throw err;
         }
     }
