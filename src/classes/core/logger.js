@@ -33,7 +33,7 @@ class Logger {
                             parsedMeta = util.inspect(meta['metadata'], {depth: 3});
                         }
 
-                        const regexp = new RegExp('\\\\[n]\\s', 'gm');
+                        const regexp = new RegExp('\\\\n\\s', 'gm');
                         parsedMeta = parsedMeta.replaceAll(regexp, ' \n');
 
                         return '{' + 'timestamp: \'' + timestamp + '\', level: \'' + level + '\', message: \'' +
