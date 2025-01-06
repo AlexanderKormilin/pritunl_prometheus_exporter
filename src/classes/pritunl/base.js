@@ -13,7 +13,6 @@ const AxiosHeaders = require('axios').AxiosHeaders;
 class PritunlBaseClient {
     constructor (props) {
         this.props = props;
-
         if (props.selfSignedCaPath && fs.existsSync(props.selfSignedCaPath)) {
             axios.defaults.httpsAgent = new https.Agent({
                 ca: [fs.readFileSync(props.selfSignedCaPath)],
@@ -23,11 +22,9 @@ class PritunlBaseClient {
                 keepAlive: false
             });
         }
-
         if (this.props.baseUrl[this.props.baseUrl.length - 1] === "/") {
             this.props.baseUrl = this.props.baseUrl.slice(0, this.props.baseUrl.length - 1);
         }
-
         this.loggerInstance = this.props.loggerInstance;
     }
 
@@ -37,11 +34,8 @@ class PritunlBaseClient {
             apiToken,
             apiSecret,
             baseUrl,
-            method: "GET",
-            path: "/organization"
         };
         options = Object.assign({}, defaultOptions, options);
-
         const authNonce = crypto.randomBytes(16).toString('hex');
         const authTimeStamp = Math.floor(Date.now() / 1000);
         const authString = [options.apiToken, authTimeStamp, authNonce, options.method.toUpperCase(), options.path].join("&");
@@ -51,13 +45,9 @@ class PritunlBaseClient {
             "Auth-Nonce": authNonce,
             "Auth-Signature": crypto.createHmac("sha256", options.apiSecret).update(authString).digest("base64")
         };
-
         const headers = new AxiosHeaders(authHeadersObj);
-
         const url = `${baseUrl}${options.path}`;
-
         let result;
-
         try {
             result = await axios({
                 method: options.method,
