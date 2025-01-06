@@ -54,7 +54,7 @@ class Logger {
     /**
      * Logs the message and optional metadata with logging level set to info
      * @param {string} message - The message to be logged
-     * @param {object} meta - The message to be logged
+     * @param {object=} meta - The message to be logged
      */
     async info(message, meta) {
         if (meta) {
@@ -67,7 +67,7 @@ class Logger {
     /**
      * Logs the message and optional metadata with logging level set to error
      * @param {string} message - The message to be logged
-     * @param {object} meta - The message to be logged
+     * @param {object=} meta - The message to be logged
      */
     async error(message, meta) {
         if (meta) {
@@ -80,7 +80,7 @@ class Logger {
     /**
      * Logs the message and optional metadata with logging level set to debug
      * @param {string} message - The message to be logged
-     * @param {object} meta - The message to be logged
+     * @param {object=} meta - The message to be logged
      */
     async debug(message, meta) {
         if (meta) {
