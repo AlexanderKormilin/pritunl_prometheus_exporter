@@ -8,7 +8,7 @@ require('dotenv').config({path: './secrets/.env'});
 
 const application = require('./classes/app');
 const App = new application({
-    httpPort: process.env.PORT || 3000,
+    httpPort: process.env.PORT,
     logLevel: process.env.LOG_LEVEL,
     pritunlServerFQDN: process.env.PRITUNL_SERVER_FQDN,
     pritunlServerApiSecret: process.env.PRITUNL_SERVER_API_SECRET,
