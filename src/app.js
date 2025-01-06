@@ -1,5 +1,5 @@
 /**
- * @fileOverview The application itself, Pritunl API metrics exporter for Prometheus
+ * @fileOverview The wrapper used to instantiate App, pass arguments it needs and start it
  * @author Alexander Kormilin
  * @version 1.2.2
  */
