@@ -2,7 +2,7 @@
  * @fileOverview This file describes data collector - the entity responsible for querying metrics data from remote API,
  * as well as processing and storage of that data.
  * @author Alexander Kormilin
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 const PritunlApiClient = require('../pritunl/apiClient');
@@ -29,6 +29,9 @@ class DataCollector {
         this.loggerInstance = loggerInstance;
     }
 
+    /**
+     * Starts the background data update job in the data collector instance
+     */
     async start() {
         await this.loggerInstance.debug('Starting raw data collector...');
         try {
@@ -49,16 +52,24 @@ class DataCollector {
         await this.loggerInstance.debug('Raw data collector started');
     };
 
+    /**
+     * Stops the previously started background data update job in the data collector instance
+     */
     async stop() {
-        await this.loggerInstance.debug('Stopping raw data collector...');
         if (this.started === true) {
+            await this.loggerInstance.debug('Stopping raw data collector...');
             await this.loggerInstance.debug('Clearing data update interval...');
             clearInterval(this.updateTimer);
             await this.loggerInstance.debug('Data update interval cleared');
+            await this.loggerInstance.debug('Raw data collector stopped');
+        } else {
+            await this.loggerInstance.debug('Raw data collector is not started and may not be stopped');
         }
-        await this.loggerInstance.debug('Raw data collector stopped');
     };
 
+    /**
+     * Gets data from the Pritunl API, parses it and stores resulting metrics in the local storage for later requests
+     */
     async updateMetricsData() {
         await this.loggerInstance.info('Attempting to update metrics data...');
 

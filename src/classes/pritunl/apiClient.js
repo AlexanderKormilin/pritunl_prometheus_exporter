@@ -1,7 +1,7 @@
 /**
  * @fileOverview The high-lvl API client for Pritunl
  * @author Alexander Kormilin
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 const PritunlBaseClient = require('./base');
@@ -32,6 +32,9 @@ class Pritunl extends PritunlBaseClient {
         });
     }
 
+    /**
+     * Gets the CPU and RAM usage data for the host with ID provided
+     */
     async listLinks(){
         try{
             const res = await super.makeRequest({
@@ -44,6 +47,10 @@ class Pritunl extends PritunlBaseClient {
         }
     }
 
+    /**
+     * Gets the locations of the link with ID provided
+     * @param {string} linkId - The internal ID of the target link
+     */
     async listLinkLocations(linkId){
         try{
             const res = await super.makeRequest({
@@ -56,6 +63,9 @@ class Pritunl extends PritunlBaseClient {
         }
     }
 
+    /**
+     * Gets the complete list of all servers existing on the Pritunl server
+     */
     async listServers(){
         try{
             const res = await super.makeRequest({
@@ -68,6 +78,9 @@ class Pritunl extends PritunlBaseClient {
         }
     }
 
+    /**
+     * Gets the complete list of all hosts existing on the Pritunl server
+     */
     async listHosts(){
         try{
             const res = await super.makeRequest({
@@ -80,6 +93,10 @@ class Pritunl extends PritunlBaseClient {
         }
     }
 
+    /**
+     * Gets the CPU and RAM usage data for the host with ID provided
+     * @param {string} hostId - The internal ID of the target host
+     */
     async getHostUsageData(hostId){
         try{
             const res = await super.makeRequest({
@@ -96,6 +113,10 @@ class Pritunl extends PritunlBaseClient {
         }
     }
 
+    /**
+     * Gets the bandwidth usage data for the server with ID provided
+     * @param {string} serverId - The internal ID of the target server
+     */
     async getServerBandwidthData(serverId){
         try{
             const res = await super.makeRequest({

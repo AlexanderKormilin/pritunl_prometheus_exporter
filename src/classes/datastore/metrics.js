@@ -1,7 +1,7 @@
 /**
  * @fileOverview This file is the definition of the datastore used by the app to store metrics data during operation
  * @author Alexander Kormilin
- * @version 1.2.1
+ * @version 1.2.2
  */
 const dataStorage = require('nedb-promises');
 
@@ -14,6 +14,9 @@ class MetricsDatastore {
         this.loggerInstance = loggerInstance;
     }
 
+    /**
+     * Ensures datastore only have datastructures we need on first call to a datastore
+     */
     async initialize() {
         try {
             await this.loggerInstance.debug('Ensuring datastore structure...');
@@ -45,6 +48,10 @@ class MetricsDatastore {
         }
     };
 
+    /**
+     * Stores the server metrics in the datastore
+     * @param {object} data - the servers metrics data received from dataCollector
+     */
     async storeServerMetricsData({data}) {
         try {
             if (this.initialized === false) {
@@ -60,6 +67,10 @@ class MetricsDatastore {
         }
     };
 
+    /**
+     * Stores the server metrics in the datastore
+     * @param {object} data - the hosts metrics data received from dataCollector
+     */
     async storeHostMetricsData({data}) {
         try {
             if (this.initialized === false) {
@@ -75,6 +86,10 @@ class MetricsDatastore {
         }
     };
 
+    /**
+     * Stores the server metrics in the datastore
+     * @param {object} data - the links metrics data received from dataCollector
+     */
     async storeLinkMetricsData({data}) {
         try {
             if (this.initialized === false) {
@@ -90,6 +105,10 @@ class MetricsDatastore {
         }
     };
 
+    /**
+     * Gets all the metrics from the datastore
+     * @return {Promise<Array<object>>}
+     */
     async getMetricsData() {
         try {
             if (this.initialized === false) {

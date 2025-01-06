@@ -1,7 +1,7 @@
 /**
  * @fileOverview Exactly what it sounds like - the application itself
  * @author Alexander Kormilin
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 const logger = require('./core/logger');

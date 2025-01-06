@@ -2,7 +2,7 @@
  * @fileOverview And this is the entity that is responsible for conversion of the "raw" data to
  * the Prometheus-friendly metrics string
  * @author Alexander Kormilin
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 const client = require('prom-client');
@@ -18,6 +18,9 @@ class Observer {
         this.metricsDefinitionHelper = new metricsDefinitionHelper();
     }
 
+    /**
+     * Updates the Prometheus-friendly metrics representation using the latest data available in the datastore
+     */
     async prepareMetrics() {
         try {
             // fetching the data
@@ -114,6 +117,10 @@ class Observer {
         }
     }
 
+    /**
+     * Getting the Prometheus-friendly metrics representation
+     * @return {string}
+     */
     async getMetrics() {
         return client.register.metrics();
     }
