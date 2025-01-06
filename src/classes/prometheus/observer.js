@@ -119,7 +119,7 @@ class Observer {
 
     /**
      * Getting the Prometheus-friendly metrics representation
-     * @return {string}
+     * @return {Promise<string>}
      */
     async getMetrics() {
         return client.register.metrics();
