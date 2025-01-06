@@ -10,16 +10,16 @@ class MetricsDatastore {
         this.storage = dataStorage.create({
             inMemoryOnly: true
         });
-        this.initialized = false;
         this.loggerInstance = loggerInstance;
+        this.initialized = false;
     }
 
     /**
-     * Ensures datastore only have datastructures we need on first call to a datastore
+     * Ensures datastore only have datastructures we need
      */
     async initialize() {
         try {
-            await this.loggerInstance.debug('Ensuring datastore structure...');
+            await this.loggerInstance.debug('Ensuring metrics storage structure...');
 
             const objectToStoreServerMetrics = {
                 type: 'serverMetrics',
@@ -40,7 +40,7 @@ class MetricsDatastore {
             await this.storage.insert(objectToStoreHostMetrics);
             await this.storage.insert(objectToStoreLinkMetrics);
 
-            await this.loggerInstance.debug('Datastore structure ready');
+            await this.loggerInstance.debug('Metrics storage structure ready');
 
             this.initialized = true;
         } catch (err) {
@@ -53,10 +53,10 @@ class MetricsDatastore {
      * @param {object} data - the servers metrics data received from dataCollector
      */
     async storeServerMetricsData({data}) {
+        if (this.initialized === false) {
+            throw new Error('Attempting to access the datastore which was not initialized properly');
+        }
         try {
-            if (this.initialized === false) {
-                await this.initialize();
-            }
             const objectToStore = {
                 type: 'serverMetrics',
                 data: data
@@ -72,10 +72,10 @@ class MetricsDatastore {
      * @param {object} data - the hosts metrics data received from dataCollector
      */
     async storeHostMetricsData({data}) {
+        if (this.initialized === false) {
+            throw new Error('Attempting to access the datastore which was not initialized properly');
+        }
         try {
-            if (this.initialized === false) {
-                await this.initialize();
-            }
             const objectToStore = {
                 type: 'hostMetrics',
                 data: data
@@ -91,10 +91,10 @@ class MetricsDatastore {
      * @param {object} data - the links metrics data received from dataCollector
      */
     async storeLinkMetricsData({data}) {
+        if (this.initialized === false) {
+            throw new Error('Attempting to access the datastore which was not initialized properly');
+        }
         try {
-            if (this.initialized === false) {
-                await this.initialize();
-            }
             const objectToStore = {
                 type: 'linkMetrics',
                 data: data
@@ -110,10 +110,10 @@ class MetricsDatastore {
      * @return {Promise<Array<object>>}
      */
     async getMetricsData() {
+        if (this.initialized === false) {
+            throw new Error('Attempting to access the datastore which was not initialized properly');
+        }
         try {
-            if (this.initialized === false) {
-                await this.initialize();
-            }
             const data = await this.storage.find({});
             await this.loggerInstance.debug('Metrics data fetched', data);
             return data;

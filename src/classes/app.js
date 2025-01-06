@@ -46,6 +46,9 @@ class Application {
             const App = express();
             await this.logger.debug('Created Express server instance...');
 
+            await this.metricsDataStorage.initialize();
+            await this.logger.debug('Metrics datastore initialized...');
+
             await this.dataCollector.start();
             await this.logger.debug('Data collector started...');
 
