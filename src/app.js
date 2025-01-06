@@ -17,6 +17,7 @@ const App = new application({
 });
 
 (async function start() {
+    await App.logger.info('App starting...');
     await App.start();
     await App.logger.info('App started');
 })();

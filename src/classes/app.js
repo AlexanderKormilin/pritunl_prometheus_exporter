@@ -43,8 +43,6 @@ class Application {
 
     async start() {
         try {
-            await this.logger.info('App starting...');
-
             const App = express();
             await this.logger.debug('Created Express server instance...');
 
