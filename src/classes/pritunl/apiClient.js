@@ -33,7 +33,7 @@ class Pritunl extends PritunlBaseClient {
     }
 
     /**
-     * Gets the CPU and RAM usage data for the host with ID provided
+     * Gets the complete list of all links existing on the Pritunl server
      */
     async listLinks(){
         try{

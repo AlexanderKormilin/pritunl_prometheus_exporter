@@ -2,3 +2,8 @@ Dockerfile
 .eslintrc.js
 .dockerignore
 .git
+.gitignore
+node_modules
+secrets
+.env
+README.md

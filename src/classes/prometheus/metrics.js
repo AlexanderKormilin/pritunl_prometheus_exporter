@@ -76,12 +76,12 @@ class MetricsDefinitionHelper {
                 }),
                 host_cpu_utilization: new client.Gauge({
                     name: 'host_cpu_utilization',
-                    help: 'metric_help',
+                    help: 'The current CPU utilization of the host, percent',
                     labelNames: ['hostName']
                 }),
                 host_ram_utilization: new client.Gauge({
                     name: 'host_ram_utilization',
-                    help: 'metric_help',
+                    help: 'The current RAM utilization of the host, percent',
                     labelNames: ['hostName']
                 })
             }

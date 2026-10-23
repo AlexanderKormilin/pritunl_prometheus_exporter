@@ -29,6 +29,10 @@ class Observer {
             const linkMetrics = allTheMetrics.find((element) => element['type'] === 'linkMetrics')['data'];
             const hostMetrics = allTheMetrics.find((element) => element['type'] === 'hostMetrics')['data'];
 
+            // dropping the previous values, so servers, hosts and links removed from Pritunl
+            // do not stay in the output with their last known values
+            client.register.resetMetrics();
+
             // Host metrics
             for (const host of hostMetrics) {
                 this.metricsDefinitionHelper.metrics.host.host_status.set({hostName: host.name}, host.status === 'online' ? 0 : 1);
@@ -46,7 +50,7 @@ class Observer {
 
             // Link metrics
             for (const link of linkMetrics) {
-                this.metricsDefinitionHelper.metrics.link.link_status.set({linkName: link.name}, 0);
+                this.metricsDefinitionHelper.metrics.link.link_status.set({linkName: link.name}, link.status === 'online' ? 0 : 1);
 
                 for (const interconnection of link.interconnectionStatsArray) {
 

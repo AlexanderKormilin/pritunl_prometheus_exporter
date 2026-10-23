@@ -12,6 +12,7 @@ class DataCollector {
         pritunlServerFQDN,
         pritunlServerApiToken,
         pritunlServerApiSecret,
+        pritunlServerCaPath,
         metricsUpdateIntervalSeconds,
         loggerInstance,
         metricsDataStorage
@@ -23,6 +24,7 @@ class DataCollector {
             apiToken: pritunlServerApiToken,
             apiSecret: pritunlServerApiSecret,
             baseUrl: pritunlServerFQDN,
+            selfSignedCaPath: pritunlServerCaPath,
             loggerInstance: loggerInstance
         });
         this.metricsDataStorage = metricsDataStorage;

@@ -18,6 +18,7 @@ class Application {
         pritunlServerFQDN,
         pritunlServerApiToken,
         pritunlServerApiSecret,
+        pritunlServerCaPath,
         metricsUpdateIntervalSeconds,
     }) {
         this.httpPort = httpPort;
@@ -31,6 +32,7 @@ class Application {
             pritunlServerFQDN: pritunlServerFQDN,
             pritunlServerApiToken: pritunlServerApiToken,
             pritunlServerApiSecret: pritunlServerApiSecret,
+            pritunlServerCaPath: pritunlServerCaPath,
             metricsUpdateIntervalSeconds: Number.parseInt(metricsUpdateIntervalSeconds),
             loggerInstance: this.logger,
             metricsDataStorage: this.metricsDataStorage
@@ -55,7 +57,7 @@ class Application {
             apiListenersRegistrar.registerAllListeners(App, this.metricsObserver, this.logger);
             await this.logger.debug('Metrics endpoint registered...');
 
-            App.listen(Number.parseInt(process.env.PORT));
+            App.listen(Number.parseInt(this.httpPort));
             await this.logger.debug('Express server started, listening on port ' + Number.parseInt(this.httpPort) + '...');
             await this.logger.info('Start sequence completed');
         } catch (err) {

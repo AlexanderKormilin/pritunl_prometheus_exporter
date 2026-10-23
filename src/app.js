@@ -13,6 +13,7 @@ const App = new application({
     pritunlServerFQDN: process.env.PRITUNL_SERVER_FQDN,
     pritunlServerApiSecret: process.env.PRITUNL_SERVER_API_SECRET,
     pritunlServerApiToken: process.env.PRITUNL_SERVER_API_TOKEN,
+    pritunlServerCaPath: process.env.PRITUNL_SERVER_CA_PATH,
     metricsUpdateIntervalSeconds: process.env.DATA_PERIODIC_UPDATE_INTERVAL_SECONDS
 });
 

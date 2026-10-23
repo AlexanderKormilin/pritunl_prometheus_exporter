@@ -13,13 +13,14 @@ const AxiosHeaders = require('axios').AxiosHeaders;
 class PritunlBaseClient {
     constructor (props) {
         this.props = props;
-        // self-signed CA option check
-        if (props.selfSignedCaPath && fs.existsSync(props.selfSignedCaPath)) {
-            axios.defaults.httpsAgent = new https.Agent({
+        // custom CA for installations with a self-signed certificate; the server hostname is still verified
+        this.httpsAgent = undefined;
+        if (props.selfSignedCaPath) {
+            if (!fs.existsSync(props.selfSignedCaPath)) {
+                throw new Error('Pritunl CA certificate file not found: ' + props.selfSignedCaPath);
+            }
+            this.httpsAgent = new https.Agent({
                 ca: [fs.readFileSync(props.selfSignedCaPath)],
-                checkServerIdentity: () => {
-                    return null;
-                },
                 keepAlive: false
             });
         }
@@ -58,12 +59,16 @@ class PritunlBaseClient {
                 method: options.method,
                 url,
                 headers: headers,
+                httpsAgent: this.httpsAgent,
                 data: options.data ? options.data : null,
             });
-            await this.props.loggerInstance.debug('Pritunl API query OK (' + options.method + ' ' + url + ')', result);
+            // logging the status only: the full response and error objects carry the request headers, Auth-Token included
+            await this.props.loggerInstance.debug('Pritunl API query OK (' + options.method + ' ' + url + '): HTTP ' +
+                result.status);
             return result;
         } catch (err) {
-            await this.props.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + ')', err);
+            await this.props.loggerInstance.error('Pritunl API query failure (' + options.method + ' ' + url + '): ' +
+                (err.response ? 'HTTP ' + err.response.status : err.message));
             throw err;
         }
     }
